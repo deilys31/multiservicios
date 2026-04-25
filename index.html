@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Multiservicios Tecnológicos — Tienda de electrónica y pago de servicios públicos. Luz, agua, internet, recarga y más." />
+  <title>Multiservicios Tecnológicos | Somos tecnología a tu alcance</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- SheetJS CDN — necesario para leer el archivo productos.xlsx -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════ -->
+  <header class="site-header">
+    <div class="container header-inner">
+
+      <!-- Logo -->
+      <a href="#" class="logo" aria-label="Multiservicios Tecnológicos — inicio">
+        <img src="Logo2.png" alt="Multiservicios Tecnológicos — Somos tecnología a tu alcance" class="logo-img" />
+        <span class="logo-brand">Multiservicios Tecnológicos</span>
+      </a>
+
+      <!-- Navegación escritorio -->
+      <nav class="nav" id="mainNav">
+        <a href="#servicios" class="nav-link">Servicios</a>
+        <a href="#productos" class="nav-link">Productos</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
+      </nav>
+
+      <!-- Botón menú móvil -->
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-bg-circles" aria-hidden="true">
+      <div class="circle c1"></div>
+      <div class="circle c2"></div>
+      <div class="circle c3"></div>
+    </div>
+    <div class="container hero-content">
+
+      <!-- Columna de texto -->
+      <div class="hero-text">
+        <h1>Tu tienda de tecnología<br>
+          <span class="gradient-text">y pagos de servicios</span>
+        </h1>
+        <p class="hero-sub">
+          Accesorios electrónicos, mantenimiento de computadoras, más el pago rápido y seguro
+          de todos tus servicios públicos en un solo lugar.
+        </p>
+        <div class="hero-actions">
+          <a href="#productos" class="btn btn-primary">Ver Catálogo</a>
+          <a href="#servicios" class="btn btn-outline">Nuestros Servicios</a>
+        </div>
+        <!-- Indicadores rápidos -->
+        <div class="hero-stats">
+          <div class="stat"><strong>100%</strong><span>Seguro</span></div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat"><strong>Rápido</strong><span>Atención inmediata</span></div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat"><strong>+30</strong><span>Productos</span></div>
+        </div>
+      </div>
+
+      <!-- Columna del logo -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-logo-ring">
+          <img src="Logo2.png" alt="Multiservicios Tecnológicos" class="hero-logo" />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SERVICIOS PÚBLICOS
+  ══════════════════════════════════════════ -->
+  <section class="services-section" id="servicios">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Lo que hacemos</p>
+        <h2>Pago de Servicios Públicos</h2>
+        <p class="section-desc">
+          Pagamos todos tus servicios de forma rápida y segura.
+          Ahorra tiempo y evita filas.
+        </p>
+      </div>
+
+      <div class="services-grid">
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#fef9c3;--icon-color:#f59e0b">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <path d="M20 8v4M20 28v4M8 20h4M28 20h4" stroke="var(--icon-color)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="20" cy="20" r="6" fill="var(--icon-color)"/>
+            </svg>
+          </div>
+          <h3>Energía Eléctrica</h3>
+          <p>Paga tu factura de luz de todas las empresas distribuidoras del país.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#e0f2fe;--icon-color:#0284c7">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <path d="M20 10c0 0-8 8-8 14a8 8 0 0016 0c0-6-8-14-8-14z" fill="var(--icon-color)"/>
+            </svg>
+          </div>
+          <h3>Agua</h3>
+          <p>Pago de facturas de agua potable y alcantarillado.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#ede9fe;--icon-color:#7c3aed">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <path d="M12 20a8 8 0 0116 0" stroke="var(--icon-color)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M15 24a5 5 0 0110 0" stroke="var(--icon-color)" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="20" cy="27" r="2" fill="var(--icon-color)"/>
+            </svg>
+          </div>
+          <h3>Internet</h3>
+          <p>Pago de planes de internet de los principales proveedores.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#dcfce7;--icon-color:#16a34a">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <rect x="14" y="9" width="12" height="22" rx="3" fill="var(--icon-color)"/>
+              <rect x="16" y="11" width="8" height="14" rx="1.5" fill="var(--icon-bg)"/>
+              <circle cx="20" cy="28" r="1.5" fill="var(--icon-bg)"/>
+            </svg>
+          </div>
+          <h3>Recarga Celular</h3>
+          <p>Recargas para todos los operadores móviles.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#fce7f3;--icon-color:#db2777">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <!-- Edificio bancario -->
+              <rect x="11" y="18" width="18" height="12" rx="1.5" fill="var(--icon-color)"/>
+              <!-- Techo/frontón -->
+              <path d="M9 18l11-8 11 8" stroke="var(--icon-color)" stroke-width="2" stroke-linejoin="round" fill="var(--icon-bg)"/>
+              <!-- Columnas -->
+              <rect x="14" y="20" width="3" height="8" rx="1" fill="var(--icon-bg)" opacity="0.7"/>
+              <rect x="18.5" y="20" width="3" height="8" rx="1" fill="var(--icon-bg)" opacity="0.7"/>
+              <rect x="23" y="20" width="3" height="8" rx="1" fill="var(--icon-bg)" opacity="0.7"/>
+              <!-- Base -->
+              <rect x="10" y="30" width="20" height="2.5" rx="1" fill="var(--icon-color)"/>
+              <!-- Moneda encima -->
+              <circle cx="28" cy="13" r="5" fill="var(--icon-color)" stroke="var(--icon-bg)" stroke-width="1.5"/>
+              <text x="28" y="16" text-anchor="middle" font-size="6" font-family="Arial" font-weight="900" fill="var(--icon-bg)">₡</text>
+            </svg>
+          </div>
+          <h3>Depósitos</h3>
+          <p>Depósitos bancarios y transferencias entre cuentas.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#fff7ed;--icon-color:#ea580c">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <path d="M16 13a4 4 0 014-4 4 4 0 014 4c0 2-1 3.5-2 4.5L20 22l-2-4.5C17 16.5 16 15 16 13z" fill="var(--icon-color)"/>
+              <rect x="13" y="25" width="14" height="5" rx="2.5" fill="var(--icon-color)"/>
+            </svg>
+          </div>
+          <h3>Telefonía Fija</h3>
+          <p>Pago de líneas fijas y servicios de telefonía corporativa.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#f0fdf4;--icon-color:#15803d">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <rect x="10" y="13" width="20" height="14" rx="3" fill="var(--icon-color)"/>
+              <rect x="12" y="15" width="16" height="10" rx="1.5" fill="var(--icon-bg)"/>
+              <path d="M16 29h8" stroke="var(--icon-color)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="20" cy="29" r="1" fill="var(--icon-color)"/>
+            </svg>
+          </div>
+          <h3>Cable / TV</h3>
+          <p>TV por cable, satélite y plataformas de entretenimiento.</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon-wrap" style="--icon-bg:#f8fafc;--icon-color:#475569">
+            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" fill="var(--icon-bg)"/>
+              <circle cx="20" cy="20" r="7" fill="var(--icon-color)"/>
+              <circle cx="20" cy="20" r="3" fill="var(--icon-bg)"/>
+              <path d="M20 10V8M20 32v-2M10 20H8M32 20h-2M13 13l-1.4-1.4M28.4 28.4L27 27M13 27l-1.4 1.4M28.4 11.6L27 13"
+                    stroke="var(--icon-color)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>Otros Servicios</h3>
+          <p>Gas, seguros, impuestos, tarifas municipales y más.</p>
+        </article>
+
+        <article class="service-card service-card--banks">
+          <div class="bank-logos" aria-hidden="true">
+            <img src="logoBN.png" alt="Banco Nacional" class="bank-logo" />
+            <img src="logoBP.png" alt="Banco Popular" class="bank-logo" />
+          </div>
+          <h3>Tarjetas, Crédito y Préstamos</h3>
+          <p>Pagos de tarjeta, crédito y préstamos del Banco Nacional y Banco Popular.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       CATÁLOGO DE PRODUCTOS
+  ══════════════════════════════════════════ -->
+  <section class="catalog-section" id="productos">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Electrónica</p>
+        <h2>Catálogo de Productos</h2>
+        <p class="section-desc">
+          Accesorios y electrónica de calidad al mejor precio.
+        </p>
+      </div>
+
+      <!-- Estado: cargando -->
+      <div id="catalog-loading" class="catalog-state" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Cargando productos…</p>
+      </div>
+
+      <!-- Estado: error -->
+      <div id="catalog-error" class="catalog-state hidden" role="alert">
+        <div class="state-icon" aria-hidden="true">⚠️</div>
+        <p id="catalog-error-msg" class="error-text">No se pudo cargar el catálogo.</p>
+        <p class="error-hint">
+          Sirve el sitio con un servidor local (ej. <strong>Live Server</strong> en VS Code)
+          y asegúrate de que <code>productos.xlsx</code> está en la carpeta raíz.
+          Consulta el <code>README.md</code> para instrucciones detalladas.
+        </p>
+      </div>
+
+      <!-- Estado: sin productos -->
+      <div id="catalog-empty" class="catalog-state hidden" role="status">
+        <div class="state-icon" aria-hidden="true">📦</div>
+        <p>No se encontraron productos en el archivo Excel.</p>
+      </div>
+
+      <!-- Cuadrícula de productos (generada por script.js) -->
+      <div id="catalog-grid" class="catalog-grid hidden" aria-label="Catálogo de productos"></div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       CONTACTO
+  ══════════════════════════════════════════ -->
+  <section class="contact-section" id="contacto">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Atención al cliente</p>
+        <h2>Contáctanos</h2>
+        <p class="section-desc">Estamos aquí para ayudarte. Escríbenos por WhatsApp.</p>
+      </div>
+
+      <div class="contact-card">
+        <ul class="contact-list">
+          <li>
+            <svg class="contact-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            <span>Lunes a Sábado: 9:00 AM – 5:30 PM</span>
+          </li>
+          <li>
+            <svg class="contact-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+            </svg>
+            <span>8615 5449</span>
+          </li>
+        </ul>
+
+        <a
+          href="https://wa.me/50686155449?text=Hola%2C%20necesito%20información%20sobre%20sus%20productos%20y%20servicios."
+          class="btn-whatsapp"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Escríbenos por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <img src="Logo2.png" alt="Multiservicios Tecnológicos" class="footer-logo-img" />
+        <span>Multiservicios Tecnológicos</span>
+      </div>
+      <p class="footer-copy">
+        © <span id="year"></span> TechStore. Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

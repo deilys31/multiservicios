@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generador de productos.xlsx</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; max-width: 640px; margin: 60px auto; padding: 0 1.5rem; background: #f0f4ff; color: #1e2340; }
+    h1  { font-size: 1.6rem; margin-bottom: .5rem; color: #2563eb; }
+    p   { color: #5a6282; margin-bottom: 1.5rem; line-height: 1.6; }
+    code { background: #e0e7ff; padding: .15em .4em; border-radius: 4px; font-size: .9em; }
+    button {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 2rem; background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #fff; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(37,99,235,.35); transition: .2s;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,.5); }
+    #status { margin-top: 1.25rem; padding: 1rem 1.25rem; border-radius: 10px; display: none; font-weight: 600; }
+    .ok  { background: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+    .err { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    ol { padding-left: 1.4rem; line-height: 2; }
+  </style>
+</head>
+<body>
+  <h1>📊 Generador de <code>productos.xlsx</code></h1>
+  <p>
+    Esta herramienta crea el archivo <code>productos.xlsx</code> de ejemplo con 5 productos
+    ficticios. Ábrela en un navegador con acceso a internet, haz clic en el botón y
+    <strong>mueve el archivo descargado a la carpeta raíz del sitio</strong>.
+  </p>
+
+  <button onclick="generarExcel()">
+    ⬇️ Generar y Descargar productos.xlsx
+  </button>
+
+  <div id="status"></div>
+
+  <hr style="margin: 2rem 0; border: none; border-top: 1px solid #dde4ff;"/>
+
+  <h2 style="font-size:1.15rem; margin-bottom:.75rem;">¿Qué hacer después?</h2>
+  <ol>
+    <li>Mueve <code>productos.xlsx</code> a la carpeta raíz del sitio (junto a <code>index.html</code>).</li>
+    <li>Abre el sitio con <strong>Live Server</strong> en VS Code (clic derecho → <em>Open with Live Server</em>).</li>
+    <li>El catálogo se cargará automáticamente desde el Excel.</li>
+    <li>Para agregar productos: edita el Excel y agrega filas. Recarga la página.</li>
+    <li>Para agregar imágenes: copia los archivos <code>.jpg</code> o <code>.png</code> a <code>productos-imagenes/</code>
+        y escribe el nombre exacto en la columna <em>imagen</em> del Excel.</li>
+  </ol>
+
+  <script>
+    /**
+     * Genera productos.xlsx con SheetJS y lo descarga.
+     * Las columnas son: nombre, precio, imagen, descripcion
+     * (deben coincidir exactamente con lo que lee script.js).
+     */
+    function generarExcel() {
+      const statusEl = document.getElementById('status');
+
+      try {
+        if (typeof XLSX === 'undefined') {
+          throw new Error('SheetJS no cargó. Verifica tu conexión a internet.');
+        }
+
+        // ── Datos de ejemplo ──────────────────────────────────────
+        const productos = [
+          {
+            nombre:      'Cargador USB-C 65W',
+            precio:      '$24.99',
+            imagen:      'cargador-usb.svg',
+            descripcion: 'Carga rápida compatible con laptops y celulares'
+          },
+          {
+            nombre:      'Audífonos Bluetooth',
+            precio:      '$39.99',
+            imagen:      'audifonos-bt.svg',
+            descripcion: 'Sonido HD, 20h de batería, cancelación de ruido'
+          },
+          {
+            nombre:      'Cable HDMI 2m 4K',
+            precio:      '$12.99',
+            imagen:      'cable-hdmi.svg',
+            descripcion: 'Resolución 4K UHD, conectores dorados resistentes'
+          },
+          {
+            nombre:      'Powerbank 20000mAh',
+            precio:      '$29.99',
+            imagen:      'powerbank.svg',
+            descripcion: 'Carga 3 dispositivos simultáneamente'
+          },
+          {
+            nombre:      'Hub USB 7 Puertos',
+            precio:      '$18.99',
+            imagen:      'hub-usb.svg',
+            descripcion: 'Compatible USB 3.0 y 2.0, con LED indicador'
+          }
+        ];
+
+        // ── Crear libro Excel ──────────────────────────────────────
+        const worksheet = XLSX.utils.json_to_sheet(productos);
+
+        // Ajustar ancho de columnas para mejor legibilidad
+        worksheet['!cols'] = [
+          { wch: 28 }, // nombre
+          { wch: 12 }, // precio
+          { wch: 22 }, // imagen
+          { wch: 50 }  // descripcion
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
+
+        // Descargar archivo
+        XLSX.writeFile(workbook, 'productos.xlsx');
+
+        statusEl.className = 'ok';
+        statusEl.textContent = '✅ productos.xlsx descargado correctamente. Muévelo a la carpeta raíz del sitio.';
+        statusEl.style.display = 'block';
+
+      } catch (err) {
+        statusEl.className = 'err';
+        statusEl.textContent = '❌ Error: ' + err.message;
+        statusEl.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
