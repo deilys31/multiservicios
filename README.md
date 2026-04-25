@@ -91,11 +91,23 @@ El Sheet debe tener una hoja llamada **`Productos`** con estas columnas en la fi
 |---------------|------------------------------------------------------------------|-----------------------|
 | `nombre`      | Nombre del producto                                              | Cable USB-C           |
 | `precio`      | Precio en colones (número o texto)                               | 3500                  |
-| `imagen`      | Nombre del archivo en la carpeta de Drive (ej. `cargador.jpg`)  | cargador.jpg          |
+| `imagen`      | Nombre del archivo en Drive o ID/URL de Drive                    | cargador.jpg          |
 | `descripcion` | Descripción corta (opcional)                                     | 1 metro, carga rápida |
+| `cantidad`    | Unidades en stock (opcional)                                     | 5                     |
+
+### Disponibilidad automática con la columna `cantidad`
+
+| Valor en `cantidad` | Badge mostrado | Botón        |
+|---------------------|----------------|--------------|
+| `1` o más           | 🟢 Disponible  | WhatsApp     |
+| `0`                 | 🔴 Agotado     | Deshabilitado (gris) |
+| vacío / ausente     | 🟢 Disponible  | WhatsApp     |
+
+Cuando un producto está agotado: el badge cambia a gris, la imagen se desatura levemente y el botón de WhatsApp se reemplaza por un botón "Agotado" no clickeable.
 
 - Para **agregar** un producto: agrega una fila al final del Sheet.
 - Para **eliminar** un producto: borra la fila completa.
+- Para **marcar como agotado**: pon `0` en la columna `cantidad`.
 - Los cambios se reflejan en el sitio al recargar la página — sin tocar código.
 
 ---

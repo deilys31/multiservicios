@@ -255,13 +255,19 @@ function renderProducts(products) {
     const precioRaw   = getField(raw, ['precio'],                  '');
     const imagenFile  = getField(raw, ['imagen'],                  '');
     const descripcion = getField(raw, ['descripcion','descripción'],'');
+    const cantidadRaw = getField(raw, ['cantidad'],                 '');
+
+    // cantidad = 0 o vacío → Agotado; cualquier número > 0 → Disponible
+    const cantidad    = parseInt(cantidadRaw, 10);
+    const disponible  = isNaN(cantidad) ? true : cantidad > 0;
+    const badgeLabel  = disponible ? 'Disponible' : 'Agotado';
 
     const precioStr = formatPrice(precioRaw);
     const imgSrc    = getImageSrc(imagenFile);
 
     // Crear elemento de tarjeta
     const card = document.createElement('article');
-    card.className = 'product-card';
+    card.className = `product-card${disponible ? '' : ' agotado'}`;
     card.setAttribute('data-index', index);
 
     card.innerHTML = `
@@ -272,7 +278,7 @@ function renderProducts(products) {
           loading="lazy"
           onerror="this.src='${PLACEHOLDER_IMG}';this.onerror=null;"
         />
-        <span class="product-badge" aria-label="Disponible">Disponible</span>
+        <span class="product-badge${disponible ? '' : ' badge-agotado'}" aria-label="${badgeLabel}">${badgeLabel}</span>
       </div>
       <div class="product-body">
         <h3 class="product-name">${escHtml(nombre)}</h3>
@@ -282,7 +288,8 @@ function renderProducts(products) {
         <p class="product-price" aria-label="Precio: ${escHtml(precioStr)}">
           ${escHtml(precioStr)}
         </p>
-        <a
+        ${disponible
+          ? `<a
           href="${escHtml(buildWhatsAppLink(nombre, precioStr))}"
           class="btn-consultar"
           target="_blank"
@@ -291,7 +298,10 @@ function renderProducts(products) {
         >
           ${whatsappSvg()}
           Consultar / Comprar
-        </a>
+        </a>`
+          : `<span class="btn-consultar btn-agotado" aria-disabled="true">
+          Agotado
+        </span>`}
       </div>
     `;
 

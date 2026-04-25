@@ -629,6 +629,25 @@ code {
   letter-spacing: .06em;
   box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
 }
+.badge-agotado {
+  background: linear-gradient(135deg, #64748b, #475569);
+  box-shadow: 0 2px 8px rgba(100, 116, 139, .3);
+}
+.product-card.agotado {
+  opacity: .7;
+}
+.product-card.agotado .product-img-wrap img {
+  filter: grayscale(60%);
+}
+.btn-agotado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #475569;
+  color: #94a3b8;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 /* Card body */
 .product-body {
