@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0fdf4"/>
+      <stop offset="100%" style="stop-color:#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="headG" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a"/>
+      <stop offset="100%" style="stop-color:#15803d"/>
+    </linearGradient>
+    <linearGradient id="cupG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="300" height="300" fill="url(#bgG)" rx="20"/>
+
+  <!-- Arco de diadema -->
+  <path d="M 72 158 Q 72 72 150 72 Q 228 72 228 158"
+        fill="none" stroke="url(#headG)" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Brazo izquierdo -->
+  <rect x="64" y="152" width="16" height="50" rx="8" fill="#15803d"/>
+  <!-- Orejera izquierda -->
+  <ellipse cx="72" cy="208" rx="30" ry="36" fill="url(#cupG)"/>
+  <ellipse cx="72" cy="208" rx="18" ry="22" fill="#15803d"/>
+  <ellipse cx="72" cy="208" rx="10" ry="13" fill="#4ade80" opacity="0.6"/>
+
+  <!-- Brazo derecho -->
+  <rect x="220" y="152" width="16" height="50" rx="8" fill="#15803d"/>
+  <!-- Orejera derecha -->
+  <ellipse cx="228" cy="208" rx="30" ry="36" fill="url(#cupG)"/>
+  <ellipse cx="228" cy="208" rx="18" ry="22" fill="#15803d"/>
+  <ellipse cx="228" cy="208" rx="10" ry="13" fill="#4ade80" opacity="0.6"/>
+
+  <!-- Símbolo Bluetooth en el centro -->
+  <polygon points="150,90 158,97 144,107 144,93 158,103 150,110"
+           fill="none" stroke="#4ade80" stroke-width="3.5"
+           stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Etiqueta -->
+  <text x="150" y="267" text-anchor="middle" font-size="13" font-family="Arial,sans-serif" font-weight="bold" fill="#16a34a">AUDÍFONOS BLUETOOTH</text>
+  <text x="150" y="283" text-anchor="middle" font-size="11" font-family="Arial,sans-serif" fill="#4ade80">Sonido HD · 20h batería</text>
+</svg>

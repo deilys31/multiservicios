@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fff7ed"/>
+      <stop offset="100%" style="stop-color:#ffedd5"/>
+    </linearGradient>
+    <linearGradient id="hubG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo -->
+  <rect width="300" height="300" fill="url(#bgG)" rx="20"/>
+
+  <!-- ─── Cable USB-A de entrada (arriba) ─── -->
+  <rect x="136" y="38" width="28" height="42" rx="6" fill="#374151"/>
+  <rect x="140" y="42" width="20" height="30" rx="4" fill="#1f2937"/>
+  <!-- Pins internos del USB-A -->
+  <rect x="143" y="45" width="5" height="18" rx="2" fill="#6b7280"/>
+  <rect x="152" y="45" width="5" height="18" rx="2" fill="#6b7280"/>
+
+  <!-- ─── Cuerpo central del HUB ─── -->
+  <ellipse cx="150" cy="148" rx="68" ry="52" fill="url(#hubG)"/>
+  <ellipse cx="150" cy="148" rx="60" ry="44" fill="#ea580c"/>
+  <!-- Panel superior -->
+  <ellipse cx="150" cy="140" rx="50" ry="34" fill="#c2410c"/>
+  <!-- Logo USB en el centro -->
+  <!-- Círculo central -->
+  <circle cx="150" cy="145" r="14" fill="#fff7ed"/>
+  <!-- Símbolo USB simplificado -->
+  <line x1="150" y1="137" x2="150" y2="153" stroke="#ea580c" stroke-width="3"/>
+  <rect x="145" y="134" width="10" height="5" rx="2" fill="none" stroke="#ea580c" stroke-width="2"/>
+  <circle cx="145" cy="152" r="3" fill="none" stroke="#ea580c" stroke-width="2"/>
+  <rect x="147" y="149" width="7" height="5" rx="1.5" fill="none" stroke="#ea580c" stroke-width="1.5"/>
+
+  <!-- ─── Puertos USB salientes (4 lados) ─── -->
+  <!-- Puerto izquierdo -->
+  <rect x="52" y="138" width="38" height="20" rx="6" fill="#c2410c"/>
+  <rect x="54" y="141" width="32" height="14" rx="4" fill="#1f2937"/>
+  <rect x="57" y="144" width="8" height="8" rx="2" fill="#374151"/>
+  <rect x="68" y="144" width="8" height="8" rx="2" fill="#374151"/>
+
+  <!-- Puerto derecho -->
+  <rect x="210" y="138" width="38" height="20" rx="6" fill="#c2410c"/>
+  <rect x="214" y="141" width="32" height="14" rx="4" fill="#1f2937"/>
+  <rect x="217" y="144" width="8" height="8" rx="2" fill="#374151"/>
+  <rect x="228" y="144" width="8" height="8" rx="2" fill="#374151"/>
+
+  <!-- Puerto inferior-izquierdo -->
+  <rect x="82" y="186" width="20" height="38" rx="6" fill="#c2410c"/>
+  <rect x="85" y="188" width="14" height="32" rx="4" fill="#1f2937"/>
+  <rect x="88" y="192" width="8" height="5" rx="2" fill="#374151"/>
+  <rect x="88" y="201" width="8" height="5" rx="2" fill="#374151"/>
+
+  <!-- Puerto inferior-derecho -->
+  <rect x="198" y="186" width="20" height="38" rx="6" fill="#c2410c"/>
+  <rect x="201" y="188" width="14" height="32" rx="4" fill="#1f2937"/>
+  <rect x="204" y="192" width="8" height="5" rx="2" fill="#374151"/>
+  <rect x="204" y="201" width="8" height="5" rx="2" fill="#374151"/>
+
+  <!-- LEDs indicadores -->
+  <circle cx="130" cy="162" r="4" fill="#fb923c"/>
+  <circle cx="130" cy="162" r="2.5" fill="#fed7aa"/>
+  <circle cx="143" cy="166" r="4" fill="#fb923c"/>
+  <circle cx="143" cy="166" r="2.5" fill="#fed7aa"/>
+  <circle cx="157" cy="166" r="4" fill="#fb923c"/>
+  <circle cx="157" cy="166" r="2.5" fill="#fed7aa"/>
+  <circle cx="170" cy="162" r="4" fill="#374151"/>
+
+  <!-- Badge USB 3.0 -->
+  <rect x="105" y="102" width="90" height="24" rx="7" fill="#1f2937"/>
+  <text x="150" y="119" text-anchor="middle" font-size="13" font-family="Arial,sans-serif" font-weight="900" fill="#fb923c">USB 3.0</text>
+
+  <!-- Etiqueta inferior -->
+  <text x="150" y="254" text-anchor="middle" font-size="13" font-family="Arial,sans-serif" font-weight="bold" fill="#c2410c">HUB USB 7 PUERTOS</text>
+  <text x="150" y="270" text-anchor="middle" font-size="11" font-family="Arial,sans-serif" fill="#ea580c">USB 3.0 + 2.0 · LED indicador</text>
+</svg>
