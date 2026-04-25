@@ -1,6 +1,6 @@
-# TechStore — Tienda de electrónica y pagos de servicios
+# Multiservicios Tecnológicos — Tienda de electrónica y pagos de servicios
 
-> Sitio web estático listo para usar. Catálogo de productos alimentado automáticamente desde un archivo Excel.
+> Sitio web estático publicable en GitHub Pages. El catálogo de productos se carga automáticamente desde un **Google Sheet** público; las imágenes se sirven desde **Google Drive**. No se necesita backend, base de datos ni API key.
 
 ---
 
@@ -9,164 +9,157 @@
 ```
 /
 ├── index.html              ← Página principal
-├── styles.css              ← Estilos (tema tecnología)
-├── script.js               ← Lógica de carga del Excel y renderizado
-├── productos.xlsx          ← Catálogo de productos (¡edítalo tú!)
-├── generar_excel.html      ← Herramienta para (re)generar el Excel en el navegador
-├── generar_excel.py        ← Script Python alternativo para generar el Excel
-└── productos-imagenes/     ← Carpeta de imágenes de los productos
-    ├── cargador-usb.svg
-    ├── audifonos-bt.svg
-    ├── cable-hdmi.svg
-    ├── powerbank.svg
-    └── hub-usb.svg
+├── styles.css              ← Estilos (tema tecnología oscuro)
+├── script.js               ← Lógica: Google Sheets, Drive, renderizado
+├── Logo2.png               ← Logo de la tienda (header, hero, footer)
+├── logoBN.png              ← Logo Banco Nacional (tarjeta de servicios)
+├── logoBP.png              ← Logo Banco Popular (tarjeta de servicios)
+└── productos-imagenes/     ← Imágenes locales de respaldo
 ```
 
 ---
 
-## Cómo abrir el sitio
+## Cómo abrir el sitio en local
 
-> ⚠️ **Importante:** el sitio usa `fetch()` para leer el Excel. Esta API **no funciona con el protocolo `file://`** (doble clic en `index.html`). Debes servirlo con un servidor local HTTP.
+El sitio usa `fetch()`, por lo que **no abre correctamente con doble clic** en `index.html`.
+Usa uno de estos métodos:
 
-### Opción A — Live Server (VS Code) — **Recomendada**
+### Opción A — Live Server (VS Code)
 
-1. Instala la extensión **Live Server** (Ritwick Dey) en VS Code.
-2. Abre la carpeta del sitio en VS Code.
-3. Clic derecho sobre `index.html` → **Open with Live Server**.
-4. El sitio se abrirá en `http://127.0.0.1:5500/index.html`.
+1. Instala la extensión **Live Server** (Ritwick Dey).
+2. Clic derecho sobre `index.html` → **Open with Live Server**.
 
-### Opción B — Python (sin instalar nada extra)
+### Opción B — Python
 
 ```bash
-# Desde la carpeta raíz del sitio:
-python -m http.server 8080
-# Abre http://localhost:8080 en tu navegador
+# Windows — usa puerto 3000 si el 8080 está bloqueado
+C:/Python311/python.exe -m http.server 3000
+# Abre http://localhost:3000
 ```
 
-### Opción C — Node.js / npx
+### Opción C — GitHub Pages (producción)
 
-```bash
-npx serve .
-# Abre la URL que indique la consola
-```
+Sube el repositorio a GitHub y activa Pages en **Settings → Pages → Branch: main**.
+No se necesita ningún servidor; Google Sheets y Google Drive funcionan directamente.
 
 ---
 
-## Cómo actualizar el catálogo de productos
+## Configuración inicial (`script.js`)
 
-El catálogo se genera **automáticamente** desde `productos.xlsx` cada vez que se carga la página.
-No necesitas tocar el código HTML ni JS.
+Abre `script.js` y edita las constantes en la sección **CONFIGURACIÓN**:
 
-### Editar precios o descripción
+```javascript
+const WHATSAPP_NUMBER     = '50686155449';               // Tu número (código país + número)
+const GOOGLE_SHEET_ID     = 'TU_ID_DE_SPREADSHEET';      // ID de tu Google Sheet
+const GOOGLE_SHEET_NAME   = 'Productos';                 // Nombre de la pestaña
+const GOOGLE_DRIVE_FOLDER_ID = 'TU_ID_DE_CARPETA';       // ID de la carpeta de Drive con imágenes
+const GOOGLE_API_KEY      = 'TU_API_KEY';                // API Key de Google Cloud (Drive API v3)
+```
 
-1. Abre `productos.xlsx` con Excel, LibreOffice Calc o similar.
-2. Modifica las celdas que quieras (nombre, precio, descripción).
-3. Guarda el archivo.
-4. Recarga la página → los cambios aparecen al instante.
+### Obtener el ID del Google Sheet
 
-### Agregar un nuevo producto
+Abre tu Sheet → copia la URL:
+```
+https://docs.google.com/spreadsheets/d/→ ESTE_ES_EL_ID ←/edit
+```
+El documento debe estar compartido como **"Cualquiera con el enlace puede verlo"**.
 
-1. Abre `productos.xlsx`.
-2. Agrega una nueva fila al final con los siguientes campos:
+### Obtener el ID de la carpeta de Drive
 
-   | Columna      | Descripción                                        | Ejemplo               |
-   |--------------|----------------------------------------------------|-----------------------|
-   | `nombre`     | Nombre del producto                                | Cable USB-A a USB-C   |
-   | `precio`     | Precio con símbolo de moneda o número              | $9.99                 |
-   | `imagen`     | Nombre **exacto** del archivo en `productos-imagenes/` | cable-usb-c.jpg   |
-   | `descripcion`| Descripción corta (opcional, puede dejarse vacía)  | 1 metro, carga rápida |
+Abre la carpeta en Google Drive → copia la URL:
+```
+https://drive.google.com/drive/folders/→ ESTE_ES_EL_ID ←
+```
+La carpeta debe estar compartida como **"Cualquiera con el enlace puede verlo"**.
 
-3. Guarda el archivo y recarga la página.
+### Obtener la API Key de Google Cloud
 
-### Eliminar un producto
-
-1. Abre `productos.xlsx`.
-2. Elimina la fila completa del producto.
-3. Guarda y recarga.
+1. Ve a [console.cloud.google.com](https://console.cloud.google.com).
+2. Crea un proyecto → **APIs y servicios → Habilitar APIs → Google Drive API**.
+3. **Credenciales → Crear credencial → Clave de API**.
+4. Restringe la clave:
+   - **Restricción de API**: Google Drive API
+   - **Referentes HTTP**: `https://TU_USUARIO.github.io/*`
 
 ---
 
-## Cómo agregar imágenes de productos
+## Catálogo de productos — Google Sheet
 
-1. Copia la imagen (`.jpg`, `.png` o `.svg`) a la carpeta `productos-imagenes/`.
-2. Escribe el nombre **exacto** del archivo (incluyendo extensión) en la columna `imagen` del Excel.
+El Sheet debe tener una hoja llamada **`Productos`** con estas columnas en la fila 1:
 
-   ```
-   productos-imagenes/
-   └── mi-producto.jpg   ← la imagen
-   
-   Excel → columna "imagen" → mi-producto.jpg
-   ```
+| Columna       | Descripción                                                      | Ejemplo               |
+|---------------|------------------------------------------------------------------|-----------------------|
+| `nombre`      | Nombre del producto                                              | Cable USB-C           |
+| `precio`      | Precio en colones (número o texto)                               | 3500                  |
+| `imagen`      | Nombre del archivo en la carpeta de Drive (ej. `cargador.jpg`)  | cargador.jpg          |
+| `descripcion` | Descripción corta (opcional)                                     | 1 metro, carga rápida |
 
-3. Si la imagen no se encuentra, se mostrará un ícono de placeholder automáticamente.
+- Para **agregar** un producto: agrega una fila al final del Sheet.
+- Para **eliminar** un producto: borra la fila completa.
+- Los cambios se reflejan en el sitio al recargar la página — sin tocar código.
 
-> **Tip:** usa nombres de archivo sin espacios ni caracteres especiales (usa `-` o `_`).
+---
+
+## Imágenes de productos — Google Drive
+
+1. Sube la imagen a la carpeta de Drive configurada en `GOOGLE_DRIVE_FOLDER_ID`.
+2. Escribe el nombre exacto del archivo en la columna `imagen` del Sheet (ej. `teclado.png`).
+3. El sitio resuelve el nombre al File ID automáticamente al cargar.
+
+### Modos de imagen soportados
+
+| Valor en la columna `imagen` | Comportamiento                                       |
+|------------------------------|------------------------------------------------------|
+| `cargador.jpg`               | Busca en la carpeta de Drive configurada             |
+| File ID de Drive (25+ chars) | Usa ese ID directamente                              |
+| URL completa de Drive        | Extrae el File ID automáticamente                    |
+| Vacío                        | Muestra un placeholder SVG                           |
+
+> Si no configuras `GOOGLE_DRIVE_FOLDER_ID` / `GOOGLE_API_KEY`, el sitio sigue funcionando con File IDs directos o archivos en `productos-imagenes/`.
 
 ---
 
 ## Configurar el número de WhatsApp
 
-El botón **"Consultar / Comprar"** de cada producto abre WhatsApp con un mensaje predefinido.
+El botón **"Consultar / Comprar"** de cada producto y las tarjetas de servicio abren WhatsApp.
 
-1. Abre `script.js`.
-2. Modifica la constante en la línea 18:
-
-   ```javascript
-   const WHATSAPP_NUMBER = '573001234567'; // ← Tu número aquí
-   ```
-
-   Formato: código de país + número, **sin** `+`, espacios ni guiones.
-   - Colombia (+57) 300 123 4567 → `573001234567`
-   - México (+52) 55 1234 5678 → `525512345678`
-   - Venezuela (+58) 412 123 4567 → `584121234567`
-
-3. Actualiza también el enlace en la sección de Contacto de `index.html` (busca `wa.me/10000000000`).
-
----
-
-## Cómo regenerar el Excel de ejemplo
-
-Si borras o corrompes `productos.xlsx`, tienes dos opciones:
-
-### Opción A — Navegador (sin instalar nada)
-
-1. Abre `generar_excel.html` en un navegador **con acceso a internet** (necesita CDN de SheetJS).
-2. Haz clic en **"Generar y Descargar productos.xlsx"**.
-3. Mueve el archivo descargado a la carpeta raíz del sitio.
-
-### Opción B — Python
-
-```bash
-pip install openpyxl
-python generar_excel.py
+En `script.js`:
+```javascript
+const WHATSAPP_NUMBER = '50686155449'; // código país + número, sin + ni espacios
 ```
+
+Formato: código de país + número sin espacios.
+- Costa Rica (+506) 8615 5449 → `50686155449`
+- Colombia (+57) 300 123 4567 → `573001234567`
 
 ---
 
 ## Personalización rápida
 
-| ¿Qué cambiar?               | ¿Dónde?                             |
-|-----------------------------|-------------------------------------|
-| Logo / nombre de la tienda  | `index.html` → busca `logo-text`    |
-| Colores del tema            | `styles.css` → variables `:root`    |
-| Dirección / horario         | `index.html` → sección `#contacto` |
-| Servicios ofrecidos         | `index.html` → sección `#servicios`|
-| Número de WhatsApp          | `script.js` → `WHATSAPP_NUMBER`    |
-| Carpeta de imágenes         | `script.js` → `IMG_FOLDER`         |
+| ¿Qué cambiar?               | ¿Dónde?                              |
+|-----------------------------|--------------------------------------|
+| Nombre / logo de la tienda  | `index.html` → sección `<header>`    |
+| Colores del tema            | `styles.css` → variables `:root`     |
+| Horario y dirección         | `index.html` → sección `#contacto`  |
+| Servicios ofrecidos         | `index.html` → sección `#servicios` |
+| Número de WhatsApp          | `script.js` → `WHATSAPP_NUMBER`     |
+| Sheet ID / hoja             | `script.js` → `GOOGLE_SHEET_ID`     |
 
 ---
 
 ## Tecnologías usadas
 
-- **HTML5 / CSS3 / JavaScript** vanilla — sin frameworks
-- **[SheetJS (XLSX)](https://sheetjs.com/)** — lectura del archivo Excel en el navegador
-- Diseño responsive con CSS Grid y Flexbox
-- SVG inline para iconos (sin dependencias externas)
+- **HTML5 / CSS3 / JavaScript** vanilla — sin frameworks ni dependencias
+- **Google Sheets gviz/tq API** — lectura del catálogo sin API key
+- **Google Drive** — alojamiento de imágenes (`lh3.googleusercontent.com/d/ID`)
+- CSS Grid y Flexbox para layout responsive
+- SVG inline para iconos
 
 ---
 
 ## Notas de seguridad
 
 - El sitio es 100% frontend; no hay backend ni base de datos.
-- Todos los textos del Excel se escapan antes de insertarlos en el DOM para prevenir XSS.
-- Los enlaces de WhatsApp usan `encodeURIComponent` para los mensajes.
+- Todos los textos del Sheet se escapan antes de insertarlos en el DOM para prevenir XSS.
+- Los mensajes de WhatsApp usan `encodeURIComponent`.
+- La API Key de Google Cloud debe restringirse al dominio de GitHub Pages.

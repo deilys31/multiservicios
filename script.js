@@ -2,17 +2,11 @@
  * ════════════════════════════════════════════════════════════
  *  script.js — TechStore
  *
- *  Carga el archivo productos.xlsx con SheetJS (XLSX) y genera
- *  dinámicamente las tarjetas del catálogo de productos.
- *
- *  Flujo:
- *    1. Al cargar la página, se hace fetch() al archivo Excel.
- *    2. SheetJS convierte el ArrayBuffer en un array de objetos JS.
- *    3. Por cada objeto (fila del Excel) se crea una tarjeta HTML.
- *    4. El botón "Consultar" abre WhatsApp con un mensaje predefinido.
+ *  Lee el catálogo desde un Google Sheet público (sin backend).
+ *  Las imágenes se sirven directamente desde Google Drive.
  *
  *  Para actualizar el catálogo:
- *    - Edita productos.xlsx (agrega, quita o modifica filas).
+ *    - Edita el Google Sheet (precios, nombres, imágenes).
  *    - Recarga la página — los cambios se reflejan automáticamente.
  * ════════════════════════════════════════════════════════════
  */
@@ -21,24 +15,55 @@
    CONFIGURACIÓN  ← Edita estos valores
 ──────────────────────────────────────────── */
 
-/**
- * Número de WhatsApp de la tienda.
- * Formato: código de país + número, sin +, espacios ni guiones.
- * Ejemplo: Colombia (+57) 300 123 4567 → "573001234567"
- */
+/** Número de WhatsApp (código país + número, sin + ni espacios) */
 const WHATSAPP_NUMBER = '50686155449';
 
-/** Ruta a la carpeta de imágenes de productos */
-const IMG_FOLDER = 'productos-imagenes/';
-
-/** Nombre del archivo Excel (debe estar en la carpeta raíz del sitio) */
-const EXCEL_URL = 'productos.xlsx';
+/**
+ * ID del Google Sheet que contiene el catálogo.
+ * Cómo obtenerlo: abre el Sheet → copia la URL:
+ *   https://docs.google.com/spreadsheets/d/→ ESTE_ES_EL_ID ←/edit
+ * El documento debe estar compartido como "Cualquiera con el enlace puede verlo".
+ */
+const GOOGLE_SHEET_ID = '1dYkmCURpbZeJs_C9EiigtUQk1tWIT57PmsEVjxx0iX8'; // ← reemplaza con tu ID
 
 /**
- * Imagen de respaldo (placeholder) cuando el archivo de imagen
- * no se encuentra o no se puede cargar. Es un SVG inline codificado
- * como Data URI, así no requiere archivos externos.
+ * Nombre exacto de la pestaña (hoja) dentro del Google Sheet.
+ * Sensible a mayúsculas. Por defecto "Productos".
  */
+const GOOGLE_SHEET_NAME = 'Productos';
+
+/**
+ * Carpeta local de imágenes (respaldo si la columna "imagen" contiene
+ * un nombre de archivo local como "cargador.jpg").
+ */
+const IMG_FOLDER = 'productos-imagenes/';
+
+/**
+ * ID de la carpeta de Google Drive donde subes las imágenes.
+ * Cómo obtenerlo: abre la carpeta en Drive → copia la URL:
+ *   https://drive.google.com/drive/folders/→ ESTE_ES_EL_ID ←
+ * La carpeta debe estar compartida como "Cualquiera con el enlace puede verlo".
+ */
+const GOOGLE_DRIVE_FOLDER_ID = '10q5t1VMXHOIex5MX8yBfvRxMBAXwzr_t'; // ← reemplaza con tu ID de carpeta
+
+/**
+ * API Key de Google Cloud (solo lectura, Drive API v3).
+ * Cómo obtenerla:
+ *   1. Ve a https://console.cloud.google.com
+ *   2. Crea un proyecto → APIs y servicios → Habilitar API → busca "Google Drive API".
+ *   3. Credenciales → Crear credencial → Clave de API.
+ *   4. Restringe la clave: APIs = "Google Drive API", HTTP referrers = tu dominio.
+ * Es seguro publicarla en el código si está restringida al dominio.
+ */
+const GOOGLE_API_KEY = 'AIzaSyCd66sPtdseDmUnzO4wY6-2ePZqsCr61S8'; // ← reemplaza con tu API key
+
+/**
+ * Mapa interno filename → fileId, construido al cargar la página.
+ * Se llena en loadDriveFolder() antes de renderizar las tarjetas.
+ */
+const driveFileMap = new Map();
+
+/** Placeholder SVG cuando no hay imagen disponible */
 const PLACEHOLDER_IMG = buildPlaceholder();
 
 
@@ -50,17 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // Menú móvil (hamburguesa)
   initMobileNav();
   initServiceCards();
-
-  // Verificar que SheetJS esté disponible
-  if (typeof XLSX === 'undefined') {
-    showError('No se pudo cargar la librería SheetJS. Verifica tu conexión a internet.');
-    return;
-  }
-
-  // Cargar y renderizar el catálogo
   loadProducts();
 });
 
@@ -120,60 +136,96 @@ function initMobileNav() {
 
 
 /* ────────────────────────────────────────────
-   CARGA DEL EXCEL
+   CARGA DESDE GOOGLE SHEETS + DRIVE
 ──────────────────────────────────────────── */
+
 /**
- * Descarga productos.xlsx con fetch(), lo parsea con SheetJS
- * y renderiza las tarjetas de productos.
- *
- * Se añade cache:'no-cache' para que el navegador siempre
- * descargue la versión más reciente del archivo.
+ * Punto de entrada: carga la carpeta de Drive (para el mapa de imágenes)
+ * y los datos del Sheet en paralelo, luego renderiza las tarjetas.
  */
 async function loadProducts() {
   try {
-    // Append a timestamp so the browser never serves a cached copy of the Excel.
-    // This guarantees the latest version is fetched on every page load.
-    const response = await fetch(`${EXCEL_URL}?v=${Date.now()}`, { cache: 'no-cache' });
-
-    if (!response.ok) {
-      throw new Error(
-        `No se encontró "${EXCEL_URL}" (HTTP ${response.status}). ` +
-        'Asegúrate de servir el sitio con un servidor local (Live Server).'
-      );
-    }
-
-    // ── Leer el Excel con SheetJS ──────────────────────────────
-    // response.arrayBuffer() obtiene los bytes crudos del archivo.
-    // XLSX.read() los interpreta como libro de Excel.
-    const arrayBuffer = await response.arrayBuffer();
-    const workbook    = XLSX.read(arrayBuffer, { type: 'array' });
-
-    // Tomamos la primera hoja del libro
-    const firstSheet = workbook.SheetNames[0];
-    if (!firstSheet) throw new Error('El archivo Excel no contiene hojas.');
-
-    // sheet_to_json convierte las filas en objetos JS usando la fila 1
-    // como nombres de campo (cabeceras).
-    // defval:'' evita undefined en celdas vacías.
-    const products = XLSX.utils.sheet_to_json(
-      workbook.Sheets[firstSheet],
-      { defval: '' }
-    );
-
-    if (products.length === 0) {
-      showEmpty();
-      return;
-    }
-
-    // Ocultar spinner y mostrar cuadrícula
+    const [products] = await Promise.all([
+      fetchFromGoogleSheets(),
+      loadDriveFolder()
+    ]);
+    if (products.length === 0) { showEmpty(); return; }
     hide('catalog-loading');
     show('catalog-grid');
     renderProducts(products);
-
   } catch (err) {
-    console.error('[TechStore] Error al cargar productos:', err);
+    console.error('[TechStore]', err);
     showError(err.message);
   }
+}
+
+/**
+ * Descarga la lista de archivos de la carpeta de Google Drive
+ * y llena driveFileMap: { 'filename.jpg' → 'fileId' }.
+ * Solo funciona si GOOGLE_DRIVE_FOLDER_ID y GOOGLE_API_KEY están configurados.
+ * Si no están configurados, se omite silenciosamente (modo degradado).
+ */
+async function loadDriveFolder() {
+  if (
+    !GOOGLE_DRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID === 'YOUR_FOLDER_ID_HERE' ||
+    !GOOGLE_API_KEY         || GOOGLE_API_KEY         === 'YOUR_API_KEY_HERE'
+  ) return;
+
+  try {
+    const q   = encodeURIComponent(`'${GOOGLE_DRIVE_FOLDER_ID}' in parents and trashed=false`);
+    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=1000&key=${GOOGLE_API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) { console.warn('[TechStore] Drive folder error:', res.status); return; }
+    const data = await res.json();
+    (data.files || []).forEach(f => driveFileMap.set(f.name.toLowerCase(), f.id));
+  } catch (e) {
+    console.warn('[TechStore] No se pudo cargar la carpeta de Drive:', e.message);
+  }
+}
+
+/**
+ * Lee el catálogo desde Google Sheets usando la API gviz/tq (sin backend).
+ * El Sheet debe estar compartido como "Cualquiera con el enlace puede verlo".
+ */
+async function fetchFromGoogleSheets() {
+  if (!GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE') {
+    throw new Error('Configura GOOGLE_SHEET_ID en script.js con el ID de tu Google Sheet.');
+  }
+
+  const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq`
+    + `?tqx=out:json&headers=1&sheet=${encodeURIComponent(GOOGLE_SHEET_NAME)}&_=${Date.now()}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `No se pudo conectar con Google Sheets (HTTP ${response.status}). ` +
+      'Verifica que el Sheet ID es correcto y el documento es público.'
+    );
+  }
+
+  const text  = await response.text();
+  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
+  if (!match) throw new Error('Respuesta inesperada de Google Sheets. Verifica que el ID sea correcto y el documento sea público.');
+
+  const data = JSON.parse(match[1]);
+  if (data.status === 'error') {
+    throw new Error(data.errors?.[0]?.detailed_message || data.errors?.[0]?.message || 'Error de Google Sheets');
+  }
+
+  const table = data.table;
+  if (!table?.cols?.length) throw new Error('El Google Sheet está vacío o sin columnas.');
+
+  const cols = table.cols.map(c => c.label || '');
+  return (table.rows || [])
+    .map(row => {
+      const obj = {};
+      (row.c || []).forEach((cell, i) => {
+        if (!cols[i]) return;
+        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
+      });
+      return obj;
+    })
+    .filter(p => String(getField(p, ['nombre'], '')).trim() !== '');
 }
 
 
@@ -205,9 +257,7 @@ function renderProducts(products) {
     const descripcion = getField(raw, ['descripcion','descripción'],'');
 
     const precioStr = formatPrice(precioRaw);
-    const imgSrc    = imagenFile
-                        ? `${IMG_FOLDER}${imagenFile}`
-                        : PLACEHOLDER_IMG;
+    const imgSrc    = getImageSrc(imagenFile);
 
     // Crear elemento de tarjeta
     const card = document.createElement('article');
@@ -286,17 +336,40 @@ function normalizeStr(s) {
 }
 
 /**
- * Formatea el precio:
- *   - Si ya contiene símbolo de moneda → lo devuelve tal cual.
- *   - Si es un número → lo formatea como "$XX.XX".
- *   - Si está vacío → devuelve "Precio a consultar".
+ * Resuelve la URL de imagen a partir de la columna "imagen":
+ *   - Nombre de archivo (ej. "teclado.png") → busca en driveFileMap → Drive CDN
+ *     Si no está en el mapa, usa la carpeta local productos-imagenes/
+ *   - URL de Drive (drive.google.com/...) → extrae el file ID
+ *   - File ID puro (sin extensión) → Drive CDN directamente
+ *   - Vacío → placeholder SVG
  */
+function getImageSrc(raw) {
+  if (!raw || String(raw).trim() === '') return PLACEHOLDER_IMG;
+  const str = String(raw).trim();
+
+  // Nombre de archivo con extensión de imagen
+  if (/\.(jpe?g|png|svg|webp|gif)$/i.test(str)) {
+    const fileId = driveFileMap.get(str.toLowerCase());
+    if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+    return `${IMG_FOLDER}${str}`; // respaldo local
+  }
+
+  // URL de Google Drive → extraer file ID
+  const driveMatch = str.match(/\/d\/([a-zA-Z0-9_-]{10,})/)
+                  || str.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+  if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+
+  // File ID puro
+  if (/^[a-zA-Z0-9_-]{15,}$/.test(str)) return `https://lh3.googleusercontent.com/d/${str}`;
+
+  return PLACEHOLDER_IMG;
+}
+
 /**
- * Formatea el precio con el símbolo ₡ (colón costarricense).
- * - Si la celda es un número (o texto numérico), aplica formato
- *   es-CR: separador de miles punto, decimal coma → ₡25.000,00
- * - Si ya contiene texto no numérico (ej. "₡ 500"), lo devuelve tal cual.
- * - Celda vacía → "Precio a consultar".
+ * Formatea precio con símbolo ₡ (colón costarricense).
+ * - Número → ₡25.000,00  (formato es-CR)
+ * - Texto no numérico → devuelve tal cual
+ * - Vacío → "Precio a consultar"
  */
 function formatPrice(raw) {
   if (raw === null || raw === undefined || String(raw).trim() === '') {
