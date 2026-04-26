@@ -91,13 +91,13 @@ Crea una segunda pestaña llamada **`Banner`** en el mismo Google Sheet para mos
 
 ### Columnas de la hoja `Banner`
 
-| Columna      | Descripción                                                     | Ejemplo                          |
-|--------------|-----------------------------------------------------------------|----------------------------------|
-| `mensaje`    | Texto del anuncio (obligatorio)                                 | ¡Descuentos de hasta 30 % hoy!   |
-| `activo`     | `TRUE` / `1` para mostrar; `FALSE` / `0` / vacío para ocultar  | TRUE                             |
-| `tipo`       | Color del banner: `promo` \| `urgente` \| `info`               | promo                            |
-| `link`       | URL opcional al hacer clic en el enlace (puede dejarse vacío)   | https://wa.me/50686155449        |
-| `link_texto` | Etiqueta del enlace (por defecto: "Ver más")                    | Consultar ahora                  |
+| Columna        | Descripción                                                     | Ejemplo                          |
+|----------------|-----------------------------------------------------------------|----------------------------------|
+| `mensaje`      | Texto del anuncio (obligatorio)                                 | ¡Descuentos de hasta 30 % hoy!   |
+| `activo`       | `TRUE` / `1` para mostrar; `FALSE` / `0` / vacío para ocultar  | TRUE                             |
+| `tipo`         | Color del banner: `promo` \| `urgente` \| `info`               | promo                            |
+| `link`         | URL opcional (debe iniciar con `https://`)                      | https://wa.me/50686155449        |
+| `link_texto`   | Etiqueta del enlace (por defecto: "Ver más →")                  | Consultar ahora                  |
 
 ### Tipos de banner
 
@@ -109,8 +109,13 @@ Crea una segunda pestaña llamada **`Banner`** en el mismo Google Sheet para mos
 
 ### Comportamiento
 
-- Si hay **varios mensajes activos**, el banner los rota automáticamente cada 5 segundos con una animación de fade. Los puntos de navegación permiten cambiar manualmente.
-- El botón **×** descarta el banner para la sesión actual (sessionStorage). Se vuelve a mostrar al abrir una nueva pestaña o al día siguiente.
+- El banner aparece con una **animación slide-down** al cargar la página.
+- Si hay **varios mensajes activos**, rotan automáticamente cada 5 segundos con una transición slide + fade. Los puntos de navegación permiten cambiar manualmente.
+- **Pausa al hover**: al pasar el cursor sobre el banner la rotación se detiene; retoma al salir.
+- Una **barra de progreso** en la parte inferior indica cuánto falta para el siguiente mensaje (solo con >1 mensajes).
+- Los banners de tipo `promo` tienen un **efecto de brillo animado** para destacar la oferta.
+- Los enlaces se muestran como un **botón pill** en lugar de texto subrayado.
+- El botón **×** descarta el banner para la sesión actual (sessionStorage). Se vuelve a mostrar al abrir una nueva pestaña.
 - Si no hay mensajes activos, el banner no aparece.
 - Para deshabilitar el banner completamente, deja `GOOGLE_SHEET_BANNER = ''` en `script.js`.
 

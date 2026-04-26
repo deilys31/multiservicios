@@ -128,14 +128,19 @@ function initServiceCards() {
  * en la parte superior de la página.
  *
  * Columnas en la hoja "Banner":
- *   mensaje    — Texto a mostrar (obligatorio)
- *   activo     — TRUE / 1 para mostrar; FALSE / 0 / vacío para ocultar
- *   tipo       — "promo" | "urgente" | "info"  (por defecto: "info")
- *   link       — URL opcional al hacer clic en el enlace
- *   link_texto — Etiqueta del enlace (por defecto: "Ver más")
- *
- * Si hay varios mensajes activos se rotan cada 5 s con fade.
- * El botón × descarta el banner para la sesión actual.
+ *   mensaje      — Texto a mostrar (obligatorio)
+ *   activo       — TRUE / 1 para mostrar; FALSE / 0 / vacío para ocultar
+ *   tipo         — "promo" | "urgente" | "info"  (por defecto: "info")
+ *   link         — URL opcional (debe iniciar con https://)
+ *   link_texto   — Etiqueta del enlace (por defecto: "Ver más →")
+ * Mejoras:
+ *   - Barra de progreso que indica cuánto falta para la siguiente rotación
+ *   - Animación de entrada (slide-down) al aparecer por primera vez
+ *   - Transición slide + fade entre mensajes
+ *   - Pausa de rotación al pasar el cursor sobre el banner
+ *   - Enlace con estilo de botón pill
+ *   - Shimmer animado en banners de tipo "promo"
+ *   - Filtrado automático por fecha_inicio / fecha_fin
  */
 async function loadBanner() {
   if (!GOOGLE_SHEET_BANNER || !GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE') return;
@@ -154,6 +159,7 @@ async function loadBanner() {
     if (data.status === 'error' || !data.table?.cols?.length) return;
 
     const cols = data.table.cols.map(c => c.label || '');
+
     const rows = (data.table.rows || []).map(row => {
       const obj = {};
       (row.c || []).forEach((cell, i) => {
@@ -171,7 +177,7 @@ async function loadBanner() {
 
     if (active.length === 0) return;
 
-    // Verificar si el usuario ya descartó este conjunto de mensajes
+    // ¿Ya descartado en esta sesión?
     const sessionKey = 'banner_dismissed_' + active.map(r => getField(r, ['mensaje'], '')).join('|');
     if (sessionStorage.getItem(sessionKey)) return;
 
@@ -181,53 +187,74 @@ async function loadBanner() {
     const linkEl     = bannerEl?.querySelector('.banner-link');
     const dotsEl     = bannerEl?.querySelector('.banner-dots');
     const closeBtn   = bannerEl?.querySelector('.banner-close');
+    const progressEl = bannerEl?.querySelector('.banner-progress-bar');
     if (!bannerEl || !msgEl) return;
 
+    const ROTATE_MS = 5000;
     const ICONS = { promo: '🏷️', urgente: '🚨', info: '📢' };
     let current = 0;
     let rotateTimer = null;
+    let paused = false;
 
-    function showMessage(index) {
+    // Comunica la duración al CSS para la animación de la barra de progreso
+    bannerEl.style.setProperty('--banner-duration', `${ROTATE_MS}ms`);
+
+    // Ocultar barra de progreso si solo hay 1 mensaje
+    if (progressEl) progressEl.style.display = active.length > 1 ? '' : 'none';
+
+    function resetProgress() {
+      if (!progressEl || active.length < 2) return;
+      progressEl.classList.remove('running');
+      void progressEl.offsetWidth; // fuerza reflow para reiniciar la animación CSS
+      progressEl.classList.add('running');
+    }
+
+    function applyContent(index) {
       const item      = active[index];
       const tipo      = String(getField(item, ['tipo'], 'info')).toLowerCase();
-      const mensaje   = escHtml(getField(item, ['mensaje'], ''));
       const link      = getField(item, ['link'], '');
-      const linkTexto = getField(item, ['link_texto', 'link texto'], 'Ver más');
+      const linkTexto = getField(item, ['link_texto', 'link texto'], 'Ver más →');
 
-      // Tipo → clase de color
       bannerEl.classList.remove('banner--promo', 'banner--urgente', 'banner--info');
-      bannerEl.classList.add(`banner--${['promo','urgente'].includes(tipo) ? tipo : 'info'}`);
+      bannerEl.classList.add(`banner--${['promo', 'urgente'].includes(tipo) ? tipo : 'info'}`);
 
-      // Fade swap
-      msgEl.classList.add('fade-out');
-      setTimeout(() => {
-        iconEl.textContent = ICONS[tipo] || ICONS.info;
-        msgEl.textContent  = mensaje;
-        msgEl.classList.remove('fade-out');
-        msgEl.classList.add('fade-in');
-        setTimeout(() => msgEl.classList.remove('fade-in'), 260);
-      }, 200);
+      iconEl.textContent = ICONS[tipo] || ICONS.info;
+      msgEl.textContent  = getField(item, ['mensaje'], '');
 
-      // Enlace
-      if (link) {
+      if (link && /^https?:\/\//i.test(link)) {
         linkEl.href        = link;
-        linkEl.textContent = escHtml(linkTexto);
+        linkEl.textContent = linkTexto;
         linkEl.classList.remove('hidden');
       } else {
         linkEl.classList.add('hidden');
       }
 
-      // Dots
       dotsEl.querySelectorAll('.banner-dot').forEach((d, i) =>
         d.classList.toggle('active', i === index)
       );
     }
 
-    // Construir dots si hay >1 mensaje
+    function showMessage(index, animate = true) {
+      if (!animate) {
+        applyContent(index);
+        return;
+      }
+      // Slide out → actualizar contenido → slide in
+      msgEl.classList.add('slide-out');
+      setTimeout(() => {
+        applyContent(index);
+        msgEl.classList.remove('slide-out');
+        msgEl.classList.add('slide-in');
+        setTimeout(() => msgEl.classList.remove('slide-in'), 260);
+        resetProgress();
+      }, 220);
+    }
+
+    // Construir puntos de navegación (solo si hay >1 mensaje)
     if (active.length > 1) {
       active.forEach((_, i) => {
         const dot = document.createElement('button');
-        dot.className  = 'banner-dot' + (i === 0 ? ' active' : '');
+        dot.className = 'banner-dot' + (i === 0 ? ' active' : '');
         dot.setAttribute('aria-label', `Mensaje ${i + 1}`);
         dot.addEventListener('click', () => {
           current = i;
@@ -240,13 +267,26 @@ async function loadBanner() {
 
     function restartTimer() {
       if (rotateTimer) clearInterval(rotateTimer);
-      if (active.length > 1) {
+      if (active.length > 1 && !paused) {
         rotateTimer = setInterval(() => {
           current = (current + 1) % active.length;
           showMessage(current);
-        }, 5000);
+        }, ROTATE_MS);
       }
     }
+
+    // Pausar rotación al hacer hover (el usuario puede leer a su ritmo)
+    bannerEl.addEventListener('mouseenter', () => {
+      paused = true;
+      if (rotateTimer) { clearInterval(rotateTimer); rotateTimer = null; }
+      progressEl?.classList.add('paused');
+    });
+    bannerEl.addEventListener('mouseleave', () => {
+      paused = false;
+      progressEl?.classList.remove('paused');
+      restartTimer();
+      resetProgress();
+    });
 
     // Cerrar banner
     closeBtn?.addEventListener('click', () => {
@@ -256,10 +296,15 @@ async function loadBanner() {
       bannerEl.addEventListener('transitionend', () => bannerEl.classList.add('hidden'), { once: true });
     });
 
-    // Mostrar primer mensaje y arrancar rotación
-    show('site-banner');
-    showMessage(0);
+    // Mostrar banner con animación de entrada slide-down
+    bannerEl.classList.remove('hidden');
+    bannerEl.classList.add('banner--entering');
+    bannerEl.addEventListener('animationend', () => bannerEl.classList.remove('banner--entering'), { once: true });
+
+    // Mostrar primer mensaje sin animación de transición (el banner ya se anima)
+    showMessage(0, false);
     restartTimer();
+    if (active.length > 1 && progressEl) progressEl.classList.add('running');
 
   } catch (e) {
     console.warn('[TechStore] No se pudo cargar el banner:', e.message);
