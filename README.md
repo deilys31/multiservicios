@@ -11,6 +11,8 @@
 ├── index.html              ← Página principal
 ├── styles.css              ← Estilos (tema tecnología oscuro)
 ├── script.js               ← Lógica: Google Sheets, Drive, renderizado
+├── robots.txt              ← Directivas SEO para buscadores
+├── sitemap.xml             ← Mapa del sitio para Google (actualiza la URL)
 ├── Logo2.png               ← Logo de la tienda (header, hero, footer)
 ├── logoBN.png              ← Logo Banco Nacional (tarjeta de servicios)
 ├── logoBP.png              ← Logo Banco Popular (tarjeta de servicios)
@@ -212,6 +214,7 @@ Formato: código de país + número sin espacios.
 | Aplicar descuento a un producto   | Google Sheet → columna `promocion` → poner el % (ej. `10`)   |
 | Mostrar/ocultar banner            | Google Sheet → pestaña `Banner` → columna `activo`            |
 | Cambiar mensaje del banner        | Google Sheet → pestaña `Banner` → columna `mensaje`           |
+| URL en `robots.txt` y `sitemap.xml` | Reemplaza `TU_USUARIO` y `TU_REPO` con tu usuario y repositorio de GitHub |
 
 ---
 

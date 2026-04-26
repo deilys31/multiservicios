@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://deilys31.github.io/multiservicios/sitemap.xml

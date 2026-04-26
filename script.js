@@ -82,8 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  buildSkeletonCards();
   initMobileNav();
   initServiceCards();
+  initContactWhatsApp();
+  initBackToTop();
   loadBanner();
   loadProducts();
 });
@@ -265,6 +268,149 @@ async function loadBanner() {
 
 
 /* ────────────────────────────────────────────
+   SKELETON LOADING (11)
+──────────────────────────────────────────── */
+/**
+ * Fills #catalog-loading with 6 skeleton placeholder cards so the page
+ * layout doesn't jump when real products load in.
+ */
+function buildSkeletonCards() {
+  const container = document.getElementById('catalog-loading');
+  if (!container) return;
+  const SKELETON_COUNT = 6;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < SKELETON_COUNT; i++) {
+    const card = document.createElement('div');
+    card.className = 'product-card skeleton-card';
+    card.setAttribute('aria-hidden', 'true');
+    card.innerHTML = `
+      <div class="skeleton-img"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line sk-title"></div>
+        <div class="skeleton-line sk-desc"></div>
+        <div class="skeleton-line sk-desc sk-short"></div>
+        <div class="skeleton-line sk-price"></div>
+        <div class="skeleton-line sk-btn"></div>
+      </div>`;
+    frag.appendChild(card);
+  }
+  container.appendChild(frag);
+}
+
+
+/* ────────────────────────────────────────────
+   WHATSAPP DINÁMICO (3 + 6)
+──────────────────────────────────────────── */
+/**
+ * Wires the contact-section button and the floating button to the
+ * WHATSAPP_NUMBER constant so both stay in sync with script.js.
+ */
+function initContactWhatsApp() {
+  const msg = encodeURIComponent('Hola, necesito información sobre sus productos y servicios.');
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+
+  const contactBtn = document.getElementById('contact-wa-btn');
+  if (contactBtn) contactBtn.href = url;
+
+  const floatBtn = document.getElementById('wa-float');
+  if (floatBtn) floatBtn.href = url;
+}
+
+
+/* ────────────────────────────────────────────
+   VOLVER ARRIBA (12)
+──────────────────────────────────────────── */
+function initBackToTop() {
+  const btn = document.getElementById('back-to-top');
+  if (!btn) return;
+
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('hidden', window.scrollY < 450);
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+
+/* ────────────────────────────────────────────
+   BUSCADOR DE PRODUCTOS (4)
+──────────────────────────────────────────── */
+/**
+ * Wires the #catalog-search input to filter product cards in real time.
+ * Matching is case-insensitive and accent-insensitive using normalizeStr().
+ */
+function initSearch(allProducts) {
+  const input     = document.getElementById('catalog-search');
+  const clearBtn  = document.getElementById('search-clear');
+  const emptyMsg  = document.getElementById('catalog-search-empty');
+  const querySpan = document.getElementById('search-query-display');
+  if (!input) return;
+
+  function applyFilter() {
+    const q     = normalizeStr(input.value.trim());
+    const cards = document.querySelectorAll('#catalog-grid .product-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      const name = normalizeStr(card.querySelector('.product-name')?.textContent || '');
+      const desc = normalizeStr(card.querySelector('.product-desc')?.textContent || '');
+      const matches = !q || name.includes(q) || desc.includes(q);
+      card.style.display = matches ? '' : 'none';
+      // Ensure animated cards are visible when shown again
+      if (matches) { card.classList.add('card-visible'); visible++; }
+    });
+
+    const hasQuery = q.length > 0;
+    clearBtn?.classList.toggle('hidden', !hasQuery);
+    if (emptyMsg) {
+      emptyMsg.classList.toggle('hidden', visible > 0 || !hasQuery);
+      if (querySpan) querySpan.textContent = input.value.trim();
+    }
+  }
+
+  input.addEventListener('input', applyFilter);
+
+  clearBtn?.addEventListener('click', () => {
+    input.value = '';
+    applyFilter();
+    input.focus();
+  });
+}
+
+
+/* ────────────────────────────────────────────
+   ANIMACIÓN DE ENTRADA DE TARJETAS (13)
+──────────────────────────────────────────── */
+/**
+ * Uses IntersectionObserver to fade-in product cards with a staggered
+ * delay as they scroll into view. Respects prefers-reduced-motion.
+ */
+function initCardAnimations() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const cards = document.querySelectorAll('#catalog-grid .product-card');
+  if (!cards.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('card-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+  cards.forEach((card, i) => {
+    card.classList.add('card-entering');
+    card.style.transitionDelay = `${Math.min(i * 55, 440)}ms`;
+    observer.observe(card);
+  });
+}
+
+
+/* ────────────────────────────────────────────
    MOBILE NAV
 ──────────────────────────────────────────── */
 function initMobileNav() {
@@ -308,6 +454,8 @@ async function loadProducts() {
     hide('catalog-loading');
     show('catalog-grid');
     renderProducts(products);
+    initSearch(products);
+    initCardAnimations();
   } catch (err) {
     console.error('[TechStore]', err);
     showError(err.message);
