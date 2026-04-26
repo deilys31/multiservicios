@@ -58,6 +58,13 @@ const GOOGLE_DRIVE_FOLDER_ID = '10q5t1VMXHOIex5MX8yBfvRxMBAXwzr_t'; // ← reemp
 const GOOGLE_API_KEY = 'AIzaSyCd66sPtdseDmUnzO4wY6-2ePZqsCr61S8'; // ← reemplaza con tu API key
 
 /**
+ * Nombre de la pestaña del Google Sheet que contiene los mensajes del banner.
+ * Columnas esperadas: mensaje | activo | tipo | link | link_texto
+ * Deja vacío ('') para deshabilitar el banner.
+ */
+const GOOGLE_SHEET_BANNER = 'Banner';
+
+/**
  * Mapa interno filename → fileId, construido al cargar la página.
  * Se llena en loadDriveFolder() antes de renderizar las tarjetas.
  */
@@ -77,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initMobileNav();
   initServiceCards();
+  loadBanner();
   loadProducts();
 });
 
@@ -108,6 +116,153 @@ function initServiceCards() {
     });
   });
 }
+
+/* ────────────────────────────────────────────
+   BANNER DINÁMICO
+──────────────────────────────────────────── */
+/**
+ * Lee la pestaña "Banner" del mismo Google Sheet y muestra un banner
+ * en la parte superior de la página.
+ *
+ * Columnas en la hoja "Banner":
+ *   mensaje    — Texto a mostrar (obligatorio)
+ *   activo     — TRUE / 1 para mostrar; FALSE / 0 / vacío para ocultar
+ *   tipo       — "promo" | "urgente" | "info"  (por defecto: "info")
+ *   link       — URL opcional al hacer clic en el enlace
+ *   link_texto — Etiqueta del enlace (por defecto: "Ver más")
+ *
+ * Si hay varios mensajes activos se rotan cada 5 s con fade.
+ * El botón × descarta el banner para la sesión actual.
+ */
+async function loadBanner() {
+  if (!GOOGLE_SHEET_BANNER || !GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE') return;
+
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq`
+      + `?tqx=out:json&headers=1&sheet=${encodeURIComponent(GOOGLE_SHEET_BANNER)}&_=${Date.now()}`;
+    const res = await fetch(url);
+    if (!res.ok) return;
+
+    const text  = await res.text();
+    const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
+    if (!match) return;
+
+    const data = JSON.parse(match[1]);
+    if (data.status === 'error' || !data.table?.cols?.length) return;
+
+    const cols = data.table.cols.map(c => c.label || '');
+    const rows = (data.table.rows || []).map(row => {
+      const obj = {};
+      (row.c || []).forEach((cell, i) => {
+        if (!cols[i]) return;
+        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
+      });
+      return obj;
+    });
+
+    // Filtrar mensajes activos
+    const active = rows.filter(r => {
+      const activo = String(getField(r, ['activo'], 'true')).trim().toLowerCase();
+      return activo !== 'false' && activo !== '0' && activo !== '';
+    });
+
+    if (active.length === 0) return;
+
+    // Verificar si el usuario ya descartó este conjunto de mensajes
+    const sessionKey = 'banner_dismissed_' + active.map(r => getField(r, ['mensaje'], '')).join('|');
+    if (sessionStorage.getItem(sessionKey)) return;
+
+    const bannerEl   = document.getElementById('site-banner');
+    const msgEl      = bannerEl?.querySelector('.banner-msg');
+    const iconEl     = bannerEl?.querySelector('.banner-icon');
+    const linkEl     = bannerEl?.querySelector('.banner-link');
+    const dotsEl     = bannerEl?.querySelector('.banner-dots');
+    const closeBtn   = bannerEl?.querySelector('.banner-close');
+    if (!bannerEl || !msgEl) return;
+
+    const ICONS = { promo: '🏷️', urgente: '🚨', info: '📢' };
+    let current = 0;
+    let rotateTimer = null;
+
+    function showMessage(index) {
+      const item      = active[index];
+      const tipo      = String(getField(item, ['tipo'], 'info')).toLowerCase();
+      const mensaje   = escHtml(getField(item, ['mensaje'], ''));
+      const link      = getField(item, ['link'], '');
+      const linkTexto = getField(item, ['link_texto', 'link texto'], 'Ver más');
+
+      // Tipo → clase de color
+      bannerEl.classList.remove('banner--promo', 'banner--urgente', 'banner--info');
+      bannerEl.classList.add(`banner--${['promo','urgente'].includes(tipo) ? tipo : 'info'}`);
+
+      // Fade swap
+      msgEl.classList.add('fade-out');
+      setTimeout(() => {
+        iconEl.textContent = ICONS[tipo] || ICONS.info;
+        msgEl.textContent  = mensaje;
+        msgEl.classList.remove('fade-out');
+        msgEl.classList.add('fade-in');
+        setTimeout(() => msgEl.classList.remove('fade-in'), 260);
+      }, 200);
+
+      // Enlace
+      if (link) {
+        linkEl.href        = link;
+        linkEl.textContent = escHtml(linkTexto);
+        linkEl.classList.remove('hidden');
+      } else {
+        linkEl.classList.add('hidden');
+      }
+
+      // Dots
+      dotsEl.querySelectorAll('.banner-dot').forEach((d, i) =>
+        d.classList.toggle('active', i === index)
+      );
+    }
+
+    // Construir dots si hay >1 mensaje
+    if (active.length > 1) {
+      active.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className  = 'banner-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Mensaje ${i + 1}`);
+        dot.addEventListener('click', () => {
+          current = i;
+          showMessage(current);
+          restartTimer();
+        });
+        dotsEl.appendChild(dot);
+      });
+    }
+
+    function restartTimer() {
+      if (rotateTimer) clearInterval(rotateTimer);
+      if (active.length > 1) {
+        rotateTimer = setInterval(() => {
+          current = (current + 1) % active.length;
+          showMessage(current);
+        }, 5000);
+      }
+    }
+
+    // Cerrar banner
+    closeBtn?.addEventListener('click', () => {
+      if (rotateTimer) clearInterval(rotateTimer);
+      bannerEl.classList.add('banner--closing');
+      sessionStorage.setItem(sessionKey, '1');
+      bannerEl.addEventListener('transitionend', () => bannerEl.classList.add('hidden'), { once: true });
+    });
+
+    // Mostrar primer mensaje y arrancar rotación
+    show('site-banner');
+    showMessage(0);
+    restartTimer();
+
+  } catch (e) {
+    console.warn('[TechStore] No se pudo cargar el banner:', e.message);
+  }
+}
+
 
 /* ────────────────────────────────────────────
    MOBILE NAV

@@ -10,6 +10,33 @@
 <body>
 
   <!-- ══════════════════════════════════════════
+       BANNER DINÁMICO (cargado desde Google Sheets · pestaña "Banner")
+  ══════════════════════════════════════════ -->
+  <div id="site-banner" class="site-banner hidden" role="region" aria-label="Anuncio" aria-live="polite">
+    <div class="banner-inner">
+      <!-- Ícono según tipo -->
+      <span class="banner-icon" aria-hidden="true"></span>
+
+      <!-- Texto del mensaje (rota si hay varios) -->
+      <span class="banner-msg"></span>
+
+      <!-- Enlace opcional -->
+      <a class="banner-link hidden" href="#" target="_blank" rel="noopener noreferrer"></a>
+
+      <!-- Puntos de navegación (visibles solo si hay >1 mensaje) -->
+      <span class="banner-dots" aria-hidden="true"></span>
+    </div>
+
+    <!-- Botón cerrar -->
+    <button class="banner-close" aria-label="Cerrar anuncio" title="Cerrar">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" width="14" height="14" aria-hidden="true">
+        <path d="M1 1l12 12M13 1L1 13"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
        HEADER
   ══════════════════════════════════════════ -->
   <header class="site-header">

@@ -83,6 +83,43 @@ La carpeta debe estar compartida como **"Cualquiera con el enlace puede verlo"**
 
 ---
 
+## Banner dinámico — Google Sheet
+
+Crea una segunda pestaña llamada **`Banner`** en el mismo Google Sheet para mostrar mensajes o promociones en una barra fija en la parte superior del sitio.
+
+### Columnas de la hoja `Banner`
+
+| Columna      | Descripción                                                     | Ejemplo                          |
+|--------------|-----------------------------------------------------------------|----------------------------------|
+| `mensaje`    | Texto del anuncio (obligatorio)                                 | ¡Descuentos de hasta 30 % hoy!   |
+| `activo`     | `TRUE` / `1` para mostrar; `FALSE` / `0` / vacío para ocultar  | TRUE                             |
+| `tipo`       | Color del banner: `promo` \| `urgente` \| `info`               | promo                            |
+| `link`       | URL opcional al hacer clic en el enlace (puede dejarse vacío)   | https://wa.me/50686155449        |
+| `link_texto` | Etiqueta del enlace (por defecto: "Ver más")                    | Consultar ahora                  |
+
+### Tipos de banner
+
+| Valor en `tipo` | Color         | Uso recomendado                     |
+|-----------------|---------------|-------------------------------------|
+| `info`          | 🔵 Azul       | Horarios, avisos generales          |
+| `promo`         | 🟠 Naranja    | Descuentos, ofertas, promociones    |
+| `urgente`       | 🔴 Rojo       | Cierres, urgencias, avisos críticos |
+
+### Comportamiento
+
+- Si hay **varios mensajes activos**, el banner los rota automáticamente cada 5 segundos con una animación de fade. Los puntos de navegación permiten cambiar manualmente.
+- El botón **×** descarta el banner para la sesión actual (sessionStorage). Se vuelve a mostrar al abrir una nueva pestaña o al día siguiente.
+- Si no hay mensajes activos, el banner no aparece.
+- Para deshabilitar el banner completamente, deja `GOOGLE_SHEET_BANNER = ''` en `script.js`.
+
+### Configuración en `script.js`
+
+```javascript
+const GOOGLE_SHEET_BANNER = 'Banner'; // nombre exacto de la pestaña; '' para deshabilitar
+```
+
+---
+
 ## Catálogo de productos — Google Sheet
 
 El Sheet debe tener una hoja llamada **`Productos`** con estas columnas en la fila 1:
@@ -173,6 +210,8 @@ Formato: código de país + número sin espacios.
 | Sheet ID / hoja                   | `script.js` → `GOOGLE_SHEET_ID`                               |
 | Marcar producto como agotado      | Google Sheet → columna `cantidad` → poner `0`                 |
 | Aplicar descuento a un producto   | Google Sheet → columna `promocion` → poner el % (ej. `10`)   |
+| Mostrar/ocultar banner            | Google Sheet → pestaña `Banner` → columna `activo`            |
+| Cambiar mensaje del banner        | Google Sheet → pestaña `Banner` → columna `mensaje`           |
 
 ---
 

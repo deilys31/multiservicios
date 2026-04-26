@@ -183,6 +183,118 @@ code {
 
 
 /* ══════════════════════════════════════════════
+   BANNER DINÁMICO
+══════════════════════════════════════════════ */
+.site-banner {
+  position: sticky;
+  top: 0;
+  z-index: 201; /* one above .site-header */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: .6rem 3.5rem .6rem 1rem;
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  min-height: 40px;
+  /* default = info (blue) */
+  background: linear-gradient(90deg, var(--clr-primary-dark), var(--clr-secondary));
+  color: #fff;
+  transition: opacity .3s ease, max-height .35s ease;
+  overflow: hidden;
+  max-height: 80px;
+}
+.site-banner.banner--promo {
+  background: linear-gradient(90deg, #c2410c, #f97316);
+}
+.site-banner.banner--urgente {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+}
+.site-banner.banner--info {
+  background: linear-gradient(90deg, var(--clr-primary-dark), var(--clr-secondary));
+}
+/* Collapse animation on dismiss */
+.site-banner.banner--closing {
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 0;
+}
+
+.banner-inner {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+.banner-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.banner-msg {
+  text-align: center;
+  transition: opacity .25s ease;
+}
+.banner-msg.fade-out { opacity: 0; }
+.banner-msg.fade-in  { opacity: 1; }
+
+.banner-link {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.banner-link:hover { opacity: .82; }
+
+.banner-dots {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  flex-shrink: 0;
+}
+.banner-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.45);
+  transition: background .25s;
+  cursor: pointer;
+}
+.banner-dot.active { background: #fff; }
+
+.banner-close {
+  position: absolute;
+  right: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.18);
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+.banner-close:hover  { background: rgba(255,255,255,.35); }
+.banner-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════
    HEADER / NAV
 ══════════════════════════════════════════════ */
 .site-header {
