@@ -94,6 +94,7 @@ El Sheet debe tener una hoja llamada **`Productos`** con estas columnas en la fi
 | `imagen`      | Nombre del archivo en Drive o ID/URL de Drive                    | cargador.jpg          |
 | `descripcion` | Descripción corta (opcional)                                     | 1 metro, carga rápida |
 | `cantidad`    | Unidades en stock (opcional)                                     | 5                     |
+| `promocion`   | Porcentaje de descuento (opcional). Ej: `10` = 10 % de descuento | 10                    |
 
 ### Disponibilidad automática con la columna `cantidad`
 
@@ -104,6 +105,20 @@ El Sheet debe tener una hoja llamada **`Productos`** con estas columnas en la fi
 | vacío / ausente     | 🟢 Disponible  | WhatsApp     |
 
 Cuando un producto está agotado: el badge cambia a gris, la imagen se desatura levemente y el botón de WhatsApp se reemplaza por un botón "Agotado" no clickeable.
+
+### Descuentos con la columna `promocion`
+
+Escribe un número en la columna `promocion` para activar el modo promoción en esa tarjeta:
+
+| Valor en `promocion` | Badge mostrado          | Precio mostrado                                  |
+|----------------------|-------------------------|--------------------------------------------------|
+| vacío / ausente      | Normal (Disponible)     | Precio original                                   |
+| `10`                 | 🟠 Promoción 10%        | Precio original tachado + precio con 10 % de descuento |
+| `25`                 | 🟠 Promoción 25%        | Precio original tachado + precio con 25 % de descuento |
+
+Fórmula aplicada: `precio_final = precio * (1 - descuento / 100)`
+
+> Si el producto también está agotado (`cantidad = 0`), el badge "Agotado" tiene prioridad sobre "Promoción".
 
 - Para **agregar** un producto: agrega una fila al final del Sheet.
 - Para **eliminar** un producto: borra la fila completa.
@@ -148,14 +163,16 @@ Formato: código de país + número sin espacios.
 
 ## Personalización rápida
 
-| ¿Qué cambiar?               | ¿Dónde?                              |
-|-----------------------------|--------------------------------------|
-| Nombre / logo de la tienda  | `index.html` → sección `<header>`    |
-| Colores del tema            | `styles.css` → variables `:root`     |
-| Horario y dirección         | `index.html` → sección `#contacto`  |
-| Servicios ofrecidos         | `index.html` → sección `#servicios` |
-| Número de WhatsApp          | `script.js` → `WHATSAPP_NUMBER`     |
-| Sheet ID / hoja             | `script.js` → `GOOGLE_SHEET_ID`     |
+| ¿Qué cambiar?                     | ¿Dónde?                                                       |
+|-----------------------------------|---------------------------------------------------------------|
+| Nombre / logo de la tienda        | `index.html` → sección `<header>`                             |
+| Colores del tema                  | `styles.css` → variables `:root`                              |
+| Horario y dirección               | `index.html` → sección `#contacto`                            |
+| Servicios ofrecidos               | `index.html` → sección `#servicios`                           |
+| Número de WhatsApp                | `script.js` → `WHATSAPP_NUMBER`                               |
+| Sheet ID / hoja                   | `script.js` → `GOOGLE_SHEET_ID`                               |
+| Marcar producto como agotado      | Google Sheet → columna `cantidad` → poner `0`                 |
+| Aplicar descuento a un producto   | Google Sheet → columna `promocion` → poner el % (ej. `10`)   |
 
 ---
 

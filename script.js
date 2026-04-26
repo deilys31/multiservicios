@@ -251,19 +251,52 @@ function renderProducts(products) {
 
   products.forEach((raw, index) => {
     // Extraer campos de forma robusta (case-insensitive, con o sin tilde)
-    const nombre      = getField(raw, ['nombre'],                  'Producto sin nombre');
-    const precioRaw   = getField(raw, ['precio'],                  '');
-    const imagenFile  = getField(raw, ['imagen'],                  '');
-    const descripcion = getField(raw, ['descripcion','descripción'],'');
-    const cantidadRaw = getField(raw, ['cantidad'],                 '');
+    const nombre       = getField(raw, ['nombre'],                   'Producto sin nombre');
+    const precioRaw    = getField(raw, ['precio'],                   '');
+    const imagenFile   = getField(raw, ['imagen'],                   '');
+    const descripcion  = getField(raw, ['descripcion','descripción'], '');
+    const cantidadRaw  = getField(raw, ['cantidad'],                  '');
+    const promocionRaw = getField(raw, ['promocion','promoción'],     '');
 
     // cantidad = 0 o vacío → Agotado; cualquier número > 0 → Disponible
-    const cantidad    = parseInt(cantidadRaw, 10);
-    const disponible  = isNaN(cantidad) ? true : cantidad > 0;
-    const badgeLabel  = disponible ? 'Disponible' : 'Agotado';
+    const cantidad   = parseInt(cantidadRaw, 10);
+    const disponible = isNaN(cantidad) ? true : cantidad > 0;
 
-    const precioStr = formatPrice(precioRaw);
-    const imgSrc    = getImageSrc(imagenFile);
+    // Descuento: valor numérico en la columna "promocion" (ej. 5 = 5 % off)
+    const descuento      = parseFloat(String(promocionRaw).replace(',', '.'));
+    const tienePromocion = !isNaN(descuento) && descuento > 0;
+
+    // Badge: "Agotado" tiene prioridad; luego "Promoción"; por defecto "Disponible"
+    const badgeLabel = !disponible ? 'Agotado' : tienePromocion ? `Promoción ${descuento}%` : 'Disponible';
+    const badgeClass = !disponible ? 'badge-agotado' : tienePromocion ? 'badge-promocion' : '';
+
+    // Precios: si hay promoción, calcular precio con descuento
+    const precioOriginalStr = formatPrice(precioRaw);
+    let precioDisplay;
+    if (tienePromocion) {
+      const precioNum = parseRawNumber(precioRaw);
+      if (precioNum !== null) {
+        const precioConDescuento = precioNum * (1 - descuento / 100);
+        precioDisplay = `
+          <p class="product-price-original" aria-label="Precio original: ${escHtml(precioOriginalStr)}">
+            ${escHtml(precioOriginalStr)}
+          </p>
+          <p class="product-price product-price-discounted" aria-label="Precio con descuento: ${escHtml(formatPrice(precioConDescuento))}">
+            ${escHtml(formatPrice(precioConDescuento))}
+          </p>`;
+      } else {
+        precioDisplay = `<p class="product-price" aria-label="Precio: ${escHtml(precioOriginalStr)}">${escHtml(precioOriginalStr)}</p>`;
+      }
+    } else {
+      precioDisplay = `<p class="product-price" aria-label="Precio: ${escHtml(precioOriginalStr)}">${escHtml(precioOriginalStr)}</p>`;
+    }
+
+    // Precio para el mensaje de WhatsApp
+    const precioWhatsApp = tienePromocion && parseRawNumber(precioRaw) !== null
+      ? formatPrice(parseRawNumber(precioRaw) * (1 - descuento / 100))
+      : precioOriginalStr;
+
+    const imgSrc = getImageSrc(imagenFile);
 
     // Crear elemento de tarjeta
     const card = document.createElement('article');
@@ -278,19 +311,17 @@ function renderProducts(products) {
           loading="lazy"
           onerror="this.src='${PLACEHOLDER_IMG}';this.onerror=null;"
         />
-        <span class="product-badge${disponible ? '' : ' badge-agotado'}" aria-label="${badgeLabel}">${badgeLabel}</span>
+        <span class="product-badge${badgeClass ? ` ${badgeClass}` : ''}" aria-label="${escHtml(badgeLabel)}">${escHtml(badgeLabel)}</span>
       </div>
       <div class="product-body">
         <h3 class="product-name">${escHtml(nombre)}</h3>
         ${descripcion
           ? `<p class="product-desc">${escHtml(descripcion)}</p>`
           : ''}
-        <p class="product-price" aria-label="Precio: ${escHtml(precioStr)}">
-          ${escHtml(precioStr)}
-        </p>
+        ${precioDisplay}
         ${disponible
           ? `<a
-          href="${escHtml(buildWhatsAppLink(nombre, precioStr))}"
+          href="${escHtml(buildWhatsAppLink(nombre, precioWhatsApp))}"
           class="btn-consultar"
           target="_blank"
           rel="noopener noreferrer"
@@ -400,6 +431,17 @@ function formatPrice(raw) {
 
   // No es numérico → devolver tal cual
   return String(raw).trim();
+}
+
+/**
+ * Extrae el valor numérico de un campo precio (mismo saneado que formatPrice).
+ * Devuelve un número o null si no es parseble.
+ */
+function parseRawNumber(raw) {
+  if (raw === null || raw === undefined || String(raw).trim() === '') return null;
+  const cleaned = String(raw).trim().replace(/[₡$€£¢₲₦₩¥₹,\s]/g, '').replace(/\./g, '');
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? null : num;
 }
 
 /**
