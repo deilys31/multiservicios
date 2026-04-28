@@ -146,7 +146,7 @@ function initServiceCards() {
  *   - Filtrado automático por fecha_inicio / fecha_fin
  */
 async function loadBanner() {
-  if (!GOOGLE_SHEET_BANNER || !GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE') return;
+  if (!GOOGLE_SHEET_BANNER || !GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE' || GOOGLE_SHEET_ID.startsWith('__')) return;
 
   try {
     const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq`
@@ -518,8 +518,8 @@ async function loadProducts() {
  */
 async function loadDriveFolder() {
   if (
-    !GOOGLE_DRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID === 'YOUR_FOLDER_ID_HERE' ||
-    !GOOGLE_API_KEY         || GOOGLE_API_KEY         === 'YOUR_API_KEY_HERE'
+    !GOOGLE_DRIVE_FOLDER_ID || GOOGLE_DRIVE_FOLDER_ID === 'YOUR_FOLDER_ID_HERE' || GOOGLE_DRIVE_FOLDER_ID.startsWith('__') ||
+    !GOOGLE_API_KEY         || GOOGLE_API_KEY         === 'YOUR_API_KEY_HERE'   || GOOGLE_API_KEY.startsWith('__')
   ) return;
 
   try {
@@ -539,8 +539,8 @@ async function loadDriveFolder() {
  * El Sheet debe estar compartido como "Cualquiera con el enlace puede verlo".
  */
 async function fetchFromGoogleSheets() {
-  if (!GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE') {
-    throw new Error('Configura GOOGLE_SHEET_ID en script.js con el ID de tu Google Sheet.');
+  if (!GOOGLE_SHEET_ID || GOOGLE_SHEET_ID === 'YOUR_SPREADSHEET_ID_HERE' || GOOGLE_SHEET_ID.startsWith('__')) {
+    throw new Error('GOOGLE_SHEET_ID no está configurado. Verifica que el secreto/variable de GitHub esté definido y el workflow haya desplegado correctamente.');
   }
 
   const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq`
