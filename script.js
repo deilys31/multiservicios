@@ -23,8 +23,9 @@ const WHATSAPP_NUMBER = '50686155449';
  * Cómo obtenerlo: abre el Sheet → copia la URL:
  *   https://docs.google.com/spreadsheets/d/→ ESTE_ES_EL_ID ←/edit
  * El documento debe estar compartido como "Cualquiera con el enlace puede verlo".
+ * Se inyecta en tiempo de despliegue desde el secreto de GitHub GOOGLE_SHEET_ID.
  */
-const GOOGLE_SHEET_ID = '1dYkmCURpbZeJs_C9EiigtUQk1tWIT57PmsEVjxx0iX8'; // ← reemplaza con tu ID
+const GOOGLE_SHEET_ID = '__GOOGLE_SHEET_ID__';
 
 /**
  * Nombre exacto de la pestaña (hoja) dentro del Google Sheet.
@@ -43,8 +44,9 @@ const IMG_FOLDER = 'productos-imagenes/';
  * Cómo obtenerlo: abre la carpeta en Drive → copia la URL:
  *   https://drive.google.com/drive/folders/→ ESTE_ES_EL_ID ←
  * La carpeta debe estar compartida como "Cualquiera con el enlace puede verlo".
+ * Se inyecta en tiempo de despliegue desde el secreto de GitHub GOOGLE_DRIVE_FOLDER_ID.
  */
-const GOOGLE_DRIVE_FOLDER_ID = '10q5t1VMXHOIex5MX8yBfvRxMBAXwzr_t'; // ← reemplaza con tu ID de carpeta
+const GOOGLE_DRIVE_FOLDER_ID = '__GOOGLE_DRIVE_FOLDER_ID__';
 
 /**
  * API Key de Google Cloud (solo lectura, Drive API v3).
@@ -53,9 +55,10 @@ const GOOGLE_DRIVE_FOLDER_ID = '10q5t1VMXHOIex5MX8yBfvRxMBAXwzr_t'; // ← reemp
  *   2. Crea un proyecto → APIs y servicios → Habilitar API → busca "Google Drive API".
  *   3. Credenciales → Crear credencial → Clave de API.
  *   4. Restringe la clave: APIs = "Google Drive API", HTTP referrers = tu dominio.
- * Es seguro publicarla en el código si está restringida al dominio.
+ * Se inyecta en tiempo de despliegue desde el secreto de GitHub GOOGLE_CLOUD_API_KEY.
+ * No incluyas ninguna clave real en este archivo.
  */
-const GOOGLE_API_KEY = 'AIzaSyCd66sPtdseDmUnzO4wY6-2ePZqsCr61S8'; // ← reemplaza con tu API key
+const GOOGLE_API_KEY = '__GOOGLE_CLOUD_API_KEY__';
 
 /**
  * Nombre de la pestaña del Google Sheet que contiene los mensajes del banner.
