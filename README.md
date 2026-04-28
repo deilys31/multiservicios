@@ -1,6 +1,6 @@
 # Multiservicios Tecnológicos — Tienda de electrónica y pagos de servicios
 
-> Sitio web estático publicable en GitHub Pages. El catálogo de productos se carga automáticamente desde un **Google Sheet** público; las imágenes se sirven desde **Google Drive**. No se necesita backend, base de datos ni API key.
+> Sitio web estático publicable en GitHub Pages. El catálogo de productos se carga automáticamente desde un **Google Sheet** público; las imágenes se sirven desde **Google Drive**. No se necesita backend ni base de datos. Los IDs y la API key se inyectan de forma segura en tiempo de despliegue mediante **GitHub Actions Secrets y Variables**.
 
 ---
 
@@ -46,17 +46,17 @@ No se necesita ningún servidor; Google Sheets y Google Drive funcionan directam
 
 ---
 
-## Configuración inicial (`script.js`)
+## Configuración inicial
 
-Abre `script.js` y edita las constantes en la sección **CONFIGURACIÓN**:
+`WHATSAPP_NUMBER` y `GOOGLE_SHEET_NAME` se editan directamente en `script.js`. Los valores que identifican recursos o son credenciales se configuran en GitHub, **no en el código**:
 
-```javascript
-const WHATSAPP_NUMBER     = '50686155449';               // Tu número (código país + número)
-const GOOGLE_SHEET_ID     = 'TU_ID_DE_SPREADSHEET';      // ID de tu Google Sheet
-const GOOGLE_SHEET_NAME   = 'Productos';                 // Nombre de la pestaña
-const GOOGLE_DRIVE_FOLDER_ID = 'TU_ID_DE_CARPETA';       // ID de la carpeta de Drive con imágenes
-const GOOGLE_API_KEY      = 'TU_API_KEY';                // API Key de Google Cloud (Drive API v3)
-```
+| Valor | Tipo | Dónde en GitHub |
+|---|---|---|
+| `GOOGLE_SHEET_ID` | Variable | Settings → Secrets and variables → Actions → **Variables** |
+| `GOOGLE_DRIVE_FOLDER_ID` | Variable | Settings → Secrets and variables → Actions → **Variables** |
+| `GOOGLE_CLOUD_API_KEY` | Secret | Settings → Secrets and variables → Actions → **Secrets** |
+
+El workflow `.github/workflows/deploy.yml` sustituye automáticamente los placeholders en `script.js` antes de publicar en GitHub Pages.
 
 ### Obtener el ID del Google Sheet
 
