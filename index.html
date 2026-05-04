@@ -43,13 +43,32 @@
   </script>
 
   <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MXWL0CP01"></script>
 <script>
+  // Defer Google Analytics until after page is interactive to avoid forced reflows
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-2MXWL0CP01');
+  function loadGA() {
+    if (loadGA.done) return;
+    loadGA.done = true;
+    gtag('js', new Date());
+    gtag('config', 'G-2MXWL0CP01');
+    var s = document.createElement('script');
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-2MXWL0CP01';
+    document.head.appendChild(s);
+  }
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(loadGA, { timeout: 3000 });
+  } else {
+    window.addEventListener('load', function() { setTimeout(loadGA, 100); });
+  }
+  // Also load on first interaction
+  ['scroll','click','keydown','touchstart'].forEach(function(e) {
+    window.addEventListener(e, loadGA, { once: true, passive: true });
+  });
 </script>
+
+  <link rel="preload" href="styles.css" as="style" />
+  <link rel="preload" href="script.js" as="script" />
 
   <title>Multiservicios Tecnológicos | Somos tecnología a tu alcance</title>
   <link rel="stylesheet" href="styles.css" />
@@ -94,7 +113,10 @@
 
       <!-- Logo -->
       <a href="#" class="logo" aria-label="Multiservicios Tecnológicos — inicio">
-        <img src="Logo2.png" alt="Multiservicios Tecnológicos — Somos tecnología a tu alcance" class="logo-img" />
+        <picture>
+          <source srcset="Logo2.webp" type="image/webp" />
+          <img src="Logo2.png" alt="Multiservicios Tecnológicos — Somos tecnología a tu alcance" class="logo-img" />
+        </picture>
         <span class="logo-brand">Multiservicios Tecnológicos</span>
       </a>
 
@@ -152,7 +174,10 @@
       <!-- Columna del logo -->
       <div class="hero-visual" aria-hidden="true">
         <div class="hero-logo-ring">
-          <img src="Logo2.png" alt="Multiservicios Tecnológicos" class="hero-logo" />
+          <picture>
+            <source srcset="Logo2.webp" type="image/webp" />
+            <img src="Logo2.png" alt="Multiservicios Tecnológicos" class="hero-logo" />
+          </picture>
         </div>
       </div>
 
@@ -290,8 +315,8 @@
 
         <article class="service-card service-card--banks">
           <div class="bank-logos" aria-hidden="true">
-            <img src="logoBN.png" alt="Banco Nacional" class="bank-logo" />
-            <img src="logoBP.png" alt="Banco Popular" class="bank-logo" />
+            <picture><source srcset="logoBN.webp" type="image/webp" /><img src="logoBN.png" alt="Banco Nacional" class="bank-logo" /></picture>
+            <picture><source srcset="logoBP.webp" type="image/webp" /><img src="logoBP.png" alt="Banco Popular" class="bank-logo" /></picture>
           </div>
           <h3>Tarjetas, Crédito y Préstamos</h3>
           <p>Pagos de tarjeta, crédito y préstamos del Banco Nacional y Banco Popular.</p>
@@ -416,7 +441,10 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-logo">
-        <img src="Logo2.png" alt="Multiservicios Tecnológicos" class="footer-logo-img" />
+        <picture>
+          <source srcset="Logo2.webp" type="image/webp" />
+          <img src="Logo2.png" alt="Multiservicios Tecnológicos" class="footer-logo-img" />
+        </picture>
         <span>Multiservicios Tecnológicos</span>
       </div>
       <p class="footer-copy">
@@ -442,6 +470,13 @@
     </svg>
   </button>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </body>
 </html>
