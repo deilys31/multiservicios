@@ -743,7 +743,7 @@ function getImageSrc(raw) {
   if (/\.(jpe?g|png|svg|webp|gif)$/i.test(str)) {
     const fileId = driveFileMap.get(str.toLowerCase());
     if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
-    return `${IMG_FOLDER}${str}`; // respaldo local
+    return PLACEHOLDER_IMG; // sin Drive fallback, usar placeholder
   }
 
   // URL de Google Drive → extraer file ID
