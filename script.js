@@ -739,20 +739,23 @@ function getImageSrc(raw) {
   if (!raw || String(raw).trim() === '') return PLACEHOLDER_IMG;
   const str = String(raw).trim();
 
+  // Sufijo de redimensionamiento: max 530x334 cubre retina en tarjetas de ~265px
+  const RESIZE = '=w530-h334';
+
   // Nombre de archivo con extensión de imagen
   if (/\.(jpe?g|png|svg|webp|gif)$/i.test(str)) {
     const fileId = driveFileMap.get(str.toLowerCase());
-    if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+    if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}${RESIZE}`;
     return PLACEHOLDER_IMG; // sin Drive fallback, usar placeholder
   }
 
   // URL de Google Drive → extraer file ID
   const driveMatch = str.match(/\/d\/([a-zA-Z0-9_-]{10,})/)
                   || str.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
-  if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+  if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}${RESIZE}`;
 
   // File ID puro
-  if (/^[a-zA-Z0-9_-]{15,}$/.test(str)) return `https://lh3.googleusercontent.com/d/${str}`;
+  if (/^[a-zA-Z0-9_-]{15,}$/.test(str)) return `https://lh3.googleusercontent.com/d/${str}${RESIZE}`;
 
   return PLACEHOLDER_IMG;
 }
