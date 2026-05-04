@@ -11,12 +11,18 @@
 ├── index.html              ← Página principal
 ├── styles.css              ← Estilos (tema tecnología oscuro)
 ├── script.js               ← Lógica: Google Sheets, Drive, renderizado
+├── sw.js                   ← Service Worker (cache de assets para visitas repetidas)
 ├── robots.txt              ← Directivas SEO para buscadores
 ├── sitemap.xml             ← Mapa del sitio para Google (actualiza la URL)
-├── Logo2.png               ← Logo de la tienda (header, hero, footer)
-├── logoBN.png              ← Logo Banco Nacional (tarjeta de servicios)
-├── logoBP.png              ← Logo Banco Popular (tarjeta de servicios)
-└── productos-imagenes/     ← Imágenes locales de respaldo
+├── Logo2.png               ← Logo de la tienda (480×480 optimizado)
+├── Logo2.webp              ← Logo WebP (formato moderno, 14 KB)
+├── logoBN.png              ← Logo Banco Nacional (72×72)
+├── logoBN.webp             ← Logo Banco Nacional WebP
+├── logoBP.png              ← Logo Banco Popular (72×72)
+├── logoBP.webp             ← Logo Banco Popular WebP
+├── .github/workflows/
+│   └── deploy.yml          ← CI: inyecta secrets, minifica y despliega a GitHub Pages
+└── favicon_io/             ← Favicons y manifest
 ```
 
 ---
@@ -214,7 +220,7 @@ Formato: código de país + número sin espacios.
 | Horario y dirección               | `index.html` → sección `#contacto`                            |
 | Servicios ofrecidos               | `index.html` → sección `#servicios`                           |
 | Número de WhatsApp                | `script.js` → `WHATSAPP_NUMBER`                               |
-| Sheet ID / hoja                   | `script.js` → `GOOGLE_SHEET_ID`                               |
+| Sheet ID / hoja                   | GitHub Variable `GOOGLE_SHEET_ID` (inyectado por CI)          |
 | Marcar producto como agotado      | Google Sheet → columna `cantidad` → poner `0`                 |
 | Aplicar descuento a un producto   | Google Sheet → columna `promocion` → poner el % (ej. `10`)   |
 | Mostrar/ocultar banner            | Google Sheet → pestaña `Banner` → columna `activo`            |
@@ -228,6 +234,9 @@ Formato: código de país + número sin espacios.
 - **HTML5 / CSS3 / JavaScript** vanilla — sin frameworks ni dependencias
 - **Google Sheets gviz/tq API** — lectura del catálogo sin API key
 - **Google Drive** — alojamiento de imágenes (`lh3.googleusercontent.com/d/ID`)
+- **Service Worker** — cache local para visitas repetidas instantáneas
+- **WebP con fallback PNG** — imágenes optimizadas vía `<picture>`
+- **GitHub Actions CI** — inyección de secrets + minificación automática (Terser, CSSO, html-minifier-terser)
 - CSS Grid y Flexbox para layout responsive
 - SVG inline para iconos
 
